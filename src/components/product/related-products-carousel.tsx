@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/carousel"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import Link from "next/link"
+import { PriceMiniDisplay } from "./price-display"
 
 type RelatedProductsCarouselProps = {
   products: Product[];
@@ -38,7 +39,7 @@ export const RelatedProductsCarousel = ({ products }: RelatedProductsCarouselPro
                 className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
               >
                 <Link
-                  href={`/${p.subcategories?.category}/${p.id}`}
+                  href={`/${p.subcategories?.category.id}/${p.id}`}
                   className="focus:outline-none h-full block"
                 >
                   <div className="bg-white rounded-lg overflow-hidden transition p-3 h-full flex flex-col">
@@ -70,9 +71,7 @@ export const RelatedProductsCarousel = ({ products }: RelatedProductsCarouselPro
                     </TooltipProvider>
 
                     {/* Ціна */}
-                    <p className="mt-auto text-lg font-semibold text-gray-800">
-                      {p.price} грн
-                    </p>
+                    <PriceMiniDisplay price={p.price} price_old={p.price_old} />
                   </div>
                 </Link>
               </CarouselItem>

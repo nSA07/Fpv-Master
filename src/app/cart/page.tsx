@@ -4,75 +4,91 @@ import { useCartStore } from "@/store/cartStore";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { CartItem } from "@/components/cart/cart-item";
+import { useCartProducts } from "../hooks/use-cart-products";
+import { useEffect, useState } from "react";
 
-export default function page() {
-    const { items, removeItem, clearCart } = useCartStore();
-    const router = useRouter();
+export default function Page() {
+  const { items: cartItems, clearCart } = useCartStore();
+  const router = useRouter();
+  const { products } = useCartProducts();
+  const [hydrated, setHydrated] = useState(false);
 
-    const totalPrice = items.reduce(
-        (sum, i) => sum + i.product.price * i.quantity,
-        0
-    );
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
-    const handleCheckout = () => {
-        console.log(items);
-        
-    };
-
-    if (items.length === 0) {
-        return (
-        <div className="p-6 text-center">
-            <h1 className="text-2xl font-bold mb-4">Кошик порожній</h1>
-            <Link href="/" className="text-blue-600 underline">
-            Повернутись до каталогу
-            </Link>
-        </div>
-        );
-    }
-
+  if (!hydrated) {
     return (
-        <div className="p-6 max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Ваш кошик</h1>
-
-            <div className="space-y-4">
-                {items.map((item) => (
-                <div
-                    key={item.product.id}
-                    className="flex items-center justify-between border-b pb-3"
-                >
-                    <div>
-                    <p className="font-semibold">{item.product.name}</p>
-                    <p className="text-sm text-gray-500">
-                        {item.quantity} × {item.product.price}₴
-                    </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                    <span className="font-bold">
-                        {item.product.price * item.quantity}₴
-                    </span>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removeItem(item.product.id)}
-                    >
-                        Видалити
-                    </Button>
-                    </div>
-                </div>
-                ))}
-            </div>
-
-            <div className="mt-6 flex justify-between items-center">
-                <p className="text-xl font-bold">Разом: {totalPrice}₴</p>
-                <div className="flex gap-3">
-                <Button variant="outline" onClick={clearCart}>
-                    Очистити
-                </Button>
-                <Button onClick={handleCheckout} className="bg-green-600 text-white">
-                    Оплатити
-                </Button>
-                </div>
-            </div>
-        </div>
+      <div className="p-6 text-center mt-20 text-gray-500">
+        Завантаження кошика...
+      </div>
     );
+  }
+
+  const totalPrice = products.reduce((sum, product) => {
+    const cartItem = cartItems.find((i) => i.id === product.id);
+    const quantity = cartItem?.quantity || 0;
+    return sum + (product.price ?? 0) * quantity;
+  }, 0);
+
+  const handleCheckout = () => {
+    console.log("Checkout items:", cartItems);
+    router.push("/checkout");
+  };
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="p-6 mt-20 text-center">
+        <h1 className="text-2xl font-bold mb-4">Кошик порожній</h1>
+        <Link href="/" className="text-blue-600 underline">
+          Повернутись до каталогу
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <section className="max-w-4xl mx-auto w-full px-2 pt-6 pb-32 min-h-[60vh]">
+      <h2 className="text-xl font-bold mb-6">Кошик</h2>
+      <ul className="divide-y divide-gray-200">
+        {products?.map((item) => {
+          const cartItem = cartItems.find((i) => i.id === item.id);
+          return (
+            <CartItem
+              key={item.id}
+              item={item}
+              quantity={cartItem?.quantity || 0}
+            />
+          );
+        })}
+      </ul>
+
+      <div className="mt-8 bg-gray-100 rounded-xl p-4 sticky bottom-0 z-20 flex flex-col gap-2 shadow-lg">
+        <div className="flex items-center justify-between">
+          <span className="text-gray-600">Усього позицій:</span>
+          <span className="font-semibold">{products.length}</span>
+        </div>
+        <div className="flex items-center justify-between text-lg font-semibold mt-2">
+          <span>До сплати:</span>
+          <span>{totalPrice.toLocaleString("uk-UA")} ₴</span>
+        </div>
+        <div className="flex justify-end items-center gap-4 mt-4">
+          <Button
+            variant="outline"
+            className="cursor-pointer hover:bg-red-500 hover:text-white transform transition-colors"
+            onClick={clearCart}
+          >
+            Очистити кошик
+          </Button>
+          <Button
+            className="cursor-pointer"
+            onClick={handleCheckout}
+          >
+            Перейти до оплати
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
 }

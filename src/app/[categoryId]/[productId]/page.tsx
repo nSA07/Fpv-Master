@@ -6,11 +6,14 @@ import { getOneProducts, getProductsByCategoryId } from "@/lib/directus";
 export default async function ProductPage({ params }: { params: { category: string, productId: string } }) {
   const { productId } = await params;
   const product: Product = await getOneProducts(productId);
-  const productById = await getProductsByCategoryId(product.subcategories.category);
+  const productById = await getProductsByCategoryId(product.subcategories.category.id);
   const filteredProduct = productById
     ? productById.filter((p: { id: string; }) => p.id !== productId)
     : productById;
-  
+  const isInactive =
+    !product.active ||
+    !product.subcategories?.active ||
+    !product.subcategories?.category?.active;
   if (!product) {
     return (
       <div className="container-wrapper">
@@ -24,13 +27,15 @@ export default async function ProductPage({ params }: { params: { category: stri
       {/* Верхній блок */}
       <div className="grid grid-cols-12 gap-6 xl:gap-8 xl:mb-8 items-start">
         {/* 🖼️ Картинка */}
-        <div className="
-          col-span-12 
-          md:col-span-8 md:col-start-3 
-          lg:col-span-6 lg:col-start-auto 
-          flex flex-col 
-          mb-6 md:mb-8 lg:mb-0
-        ">
+        <div className={`
+            col-span-12 
+            md:col-span-8 md:col-start-3 
+            lg:col-span-6 lg:col-start-auto 
+            flex flex-col 
+            mb-6 md:mb-8 lg:mb-0
+            ${isInactive ? "opacity-50 grayscale pointer-events-none" : ""}
+          `}
+        >
           <ProductGallery
             images={product.images.map((img) => img.directus_files_id)}
             name={product.name}
@@ -67,7 +72,7 @@ export default async function ProductPage({ params }: { params: { category: stri
           </p>
 
           {/* Кнопка */}
-          <QuantitySelector product={product} />
+          <QuantitySelector product={product} disabled={isInactive} />
 
           {/* Інфо блок */}
           <div className="p-3 sm:p-4 rounded-lg bg-gray-50 text-sm flex flex-col gap-3 text-gray-700">

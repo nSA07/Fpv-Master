@@ -1,7 +1,10 @@
 interface Product {
+  product: any;
   id: string;
   name: string;
+  active: boolean;
   price: number;
+  price_old?: number | null;
   stock: number;
   description: string;
   sku: string;
@@ -23,13 +26,15 @@ interface ProductAttribute {
 
 interface Subcategory {
   id: string;
+  active: boolean;
   name: string;
   slug: string;
-  category: string
+  category: Category;
 }
 
 interface Category {
   id: string;
+  active: boolean;
   name: string;
   slug: string;
   children_subcategory: Subcategory[];

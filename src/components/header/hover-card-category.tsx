@@ -14,8 +14,8 @@ export const HoverCardCategory: React.FC<HoverCardCategoryProps> = ({categories}
 
   return (
     <HoverCard openDelay={100} closeDelay={200}>
-      <HoverCardTrigger className="cursor-pointer hover:underline font-medium">
-        Категорії
+      <HoverCardTrigger className="cursor-pointer hover:text-gray-600 font-medium transition-colors" asChild>
+        <Link href="/">Категорії</Link>
       </HoverCardTrigger>
 
       <HoverCardContent

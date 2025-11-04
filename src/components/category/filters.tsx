@@ -21,7 +21,7 @@ export interface FiltersState {
   brands: string[];
   priceMin?: number;
   priceMax?: number;
-  inStock?: boolean;
+  stock?: ("in" | "out")[]; // Наявність товарів
 }
 
 export const Filters: React.FC<FiltersProps> = ({
@@ -44,18 +44,13 @@ export const Filters: React.FC<FiltersProps> = ({
   // Діапазон цін
   const priceRange = useMemo(() => {
     const prices = products.map((p) => p.price);
-    return {
-      min: Math.min(...prices),
-      max: Math.max(...prices),
-    };
+    return { min: Math.min(...prices), max: Math.max(...prices) };
   }, [products]);
 
   // Унікальні бренди
   const brands = useMemo(() => {
     const set = new Set<string>();
-    products.forEach((p) => {
-      if (p.brand) set.add(p.brand);
-    });
+    products.forEach((p) => set.add(p.brand ?? "No Brand"));
     return Array.from(set);
   }, [products]);
 
@@ -80,7 +75,10 @@ export const Filters: React.FC<FiltersProps> = ({
     }
 
     if (type === "stock") {
-      updated.inStock = checked;
+      const current = filters.stock ?? [];
+      updated.stock = checked
+        ? [...current, value as "in" | "out"]
+        : current.filter((v) => v !== value);
     }
 
     onFilterChange(updated);
@@ -95,13 +93,16 @@ export const Filters: React.FC<FiltersProps> = ({
     });
   };
 
-  // 🔹 Перевірка чи є активні фільтри
   const hasActiveFilters =
     filters.subcategories.length > 0 ||
     filters.brands.length > 0 ||
     filters.priceMin !== undefined ||
     filters.priceMax !== undefined ||
-    filters.inStock === true;
+    (filters.stock && filters.stock.length > 0);
+
+  // Логіка для чекбоксів Наявність
+  const stockIn = products.some((p) => p.stock > 0);
+  const stockOut = products.some((p) => p.stock <= 0);
 
   return (
     <aside className="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto p-2">
@@ -160,27 +161,23 @@ export const Filters: React.FC<FiltersProps> = ({
         <AccordionItem value="brand">
           <AccordionTrigger className="cursor-pointer">Бренд</AccordionTrigger>
           <AccordionContent>
-            {brands.length > 0 ? (
-              <ul className="space-y-1">
-                {brands.map((brand) => (
-                  <li key={brand}>
-                    <label className="flex items-center gap-2 text-sm cursor-pointer">
-                      <input
-                        type="checkbox"
-                        value={brand}
-                        checked={filters.brands.includes(brand)}
-                        onChange={(e) =>
-                          handleCheckboxChange("brand", brand, e.target.checked)
-                        }
-                      />
-                      {brand}
-                    </label>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-gray-500">Немає брендів</p>
-            )}
+            <ul className="space-y-1">
+              {brands.map((brand) => (
+                <li key={brand}>
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input
+                      type="checkbox"
+                      value={brand}
+                      checked={filters.brands.includes(brand)}
+                      onChange={(e) =>
+                        handleCheckboxChange("brand", brand, e.target.checked)
+                      }
+                    />
+                    {brand === "No Brand" ? "Без бренду" : brand}
+                  </label>
+                </li>
+              ))}
+            </ul>
           </AccordionContent>
         </AccordionItem>
 
@@ -188,21 +185,41 @@ export const Filters: React.FC<FiltersProps> = ({
         <AccordionItem value="stock">
           <AccordionTrigger className="cursor-pointer">Наявність</AccordionTrigger>
           <AccordionContent>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="checkbox"
-                checked={filters.inStock ?? false}
-                onChange={(e) =>
-                  handleCheckboxChange("stock", "in-stock", e.target.checked)
-                }
-              />
-              Є в наявності
-            </label>
+            <ul className="space-y-1 text-sm">
+              {stockIn && (
+                <li>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={filters.stock?.includes("in") ?? false}
+                      onChange={(e) =>
+                        handleCheckboxChange("stock", "in", e.target.checked)
+                      }
+                    />
+                    Є в наявності
+                  </label>
+                </li>
+              )}
+              {stockOut && (
+                <li>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={filters.stock?.includes("out") ?? false}
+                      onChange={(e) =>
+                        handleCheckboxChange("stock", "out", e.target.checked)
+                      }
+                    />
+                    Немає в наявності
+                  </label>
+                </li>
+              )}
+            </ul>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
 
-      {/* 🔹 Кнопка тільки на мобільних */}
+      {/* Кнопка для мобільних */}
       <div className="mt-4 md:hidden">
         <Button
           disabled={!hasActiveFilters}

@@ -13,12 +13,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
   categories,
   products,
 }) => {
-  // Витягуємо всі товари по категоріях
-  const sectionProducts: Product[] = categories.flatMap((cat) =>
-    products.filter((p) => p.subcategories?.category === cat.id) // ← тут важливо: твій продукт має знати category_id через subcategory
-  );
-
-  if (!sectionProducts || sectionProducts.length === 0) {
+  if (products.length === 0) {
     return (
       <div className="flex items-center justify-center py-20">
         <p className="text-3xl font-bold text-gray-400 uppercase tracking-wide">
@@ -27,24 +22,26 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
       </div>
     );
   }
-
+  
   return (
     <section className="mb-10">
       {categories.map((category) => {
-        // Фільтруємо товари тільки цієї категорії
         const catProducts = products.filter(
-          (p) => p.subcategories?.category === category.id
+          (p) => category.children_subcategory
+            .map((sub) => sub.id)
+            .includes(p.subcategories.id)
         );
-
+        
         if (catProducts.length === 0) return null;
-
         return (
           <div key={category.id} className="flex flex-col py-9 gap-2">
-            {/* Слайдер з товарами */}
             <Carousel opts={{ align: "start" }}>
               <div className="flex justify-between items-center gap-2 sm:gap-0 pt-4 pb-4 sm:pb-8 relative">
-                <h2 className="text-xl/tight md:text-2xl/tight font-bold uppercase">{category.name}</h2>
-                <div className="flex items-end xl:items-center gap-1 sm:gap-4 sm:ml-auto flex-col-reverse sm:flex-row">                
+                <h2 className="text-xl/tight md:text-2xl/tight font-bold uppercase">
+                  {category.name}
+                </h2>
+
+                <div className="flex items-end xl:items-center gap-1 sm:gap-4 sm:ml-auto flex-col-reverse sm:flex-row">
                   <Link
                     href={`/${category.id}`}
                     className="text-sm/tight flex items-center font-semibold uppercase underline"

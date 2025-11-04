@@ -26,41 +26,61 @@ export const CategoryClient: React.FC<CategoryClientProps> = ({
   const [filters, setFilters] = useState<FiltersState>({
     subcategories: [],
     brands: [],
+    stock: [], // ✅ новий фільтр
   });
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  // Фільтрація клієнтська
+  // 🔥 Клієнтська фільтрація
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
+      // Підкатегорії
       if (
         filters.subcategories.length > 0 &&
         !filters.subcategories.includes(p.subcategories.id)
       )
         return false;
-      if (
-        filters.brands.length > 0 &&
-        (!p.brand || !filters.brands.includes(p.brand))
-      )
+
+      // Бренди (враховуємо null як "No Brand")
+      const brand = p.brand ?? "No Brand";
+      if (filters.brands.length > 0 && !filters.brands.includes(brand))
         return false;
+
+      // Ціна
       if (filters.priceMin !== undefined && p.price < filters.priceMin)
         return false;
       if (filters.priceMax !== undefined && p.price > filters.priceMax)
         return false;
-      if (filters.inStock && p.stock <= 0) return false;
+
+      // ✅ Наявність
+      if (filters.stock?.length) {
+        const isInStock = p.stock > 0;
+
+        // Якщо вибрано тільки "Є в наявності"
+        if (filters.stock.includes("in") && !filters.stock.includes("out")) {
+          if (!isInStock) return false;
+        }
+
+        // Якщо вибрано тільки "Немає"
+        if (filters.stock.includes("out") && !filters.stock.includes("in")) {
+          if (isInStock) return false;
+        }
+        // Якщо вибрано обидва — не фільтруємо
+      }
+
       return true;
     });
   }, [products, filters]);
 
   return (
     <section className="mb-10">
-      {/* Заголовок і кнопка фільтрів */}
+      {/* Заголовок + кнопка фільтрів моб */}
       <div className="flex justify-between items-center py-4 sm:py-6 md:py-8 relative">
         <h2 className="text-xl/tight md:text-2xl/tight font-bold uppercase">
           {category.name}
         </h2>
 
-        {/* Кнопка "Фільтри" тільки для мобільних */}
+        {/* Mobile filters button */}
         <div className="block md:hidden">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
@@ -89,7 +109,7 @@ export const CategoryClient: React.FC<CategoryClientProps> = ({
                   products={products}
                   onFilterChange={setFilters}
                   filters={filters}
-                  onClose={() => setIsSheetOpen(false)} // 🔹 передаємо колбек
+                  onClose={() => setIsSheetOpen(false)}
                 />
               </div>
             </SheetContent>
@@ -99,12 +119,16 @@ export const CategoryClient: React.FC<CategoryClientProps> = ({
 
       {/* Контент сторінки */}
       <div className="grid grid-cols-12 gap-6">
-        {/* Фільтри для desktop */}
+        {/* Desktop filters */}
         <div className="md:col-span-4 lg:col-span-3 hidden md:block">
-          <Filters filters={filters} products={products} onFilterChange={setFilters} />
+          <Filters
+            filters={filters}
+            products={products}
+            onFilterChange={setFilters}
+          />
         </div>
 
-        {/* Товари */}
+        {/* Products */}
         <div className="col-span-12 md:col-span-8 lg:col-span-9">
           <div className="grid grid-cols-12 gap-6">
             {filteredProducts.map((p) => (
@@ -115,6 +139,7 @@ export const CategoryClient: React.FC<CategoryClientProps> = ({
                 <ProductCard product={p} />
               </div>
             ))}
+
             {filteredProducts.length === 0 && (
               <p className="col-span-12 text-center text-gray-500">
                 Товари не знайдено
