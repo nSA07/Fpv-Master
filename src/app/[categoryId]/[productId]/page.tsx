@@ -1,7 +1,96 @@
+import type { Metadata } from "next";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { QuantitySelector } from "@/components/product/quantity-selector";
 import { RelatedProductsCarousel } from "@/components/product/related-products-carousel";
 import { getOneProducts, getProductsByCategoryId } from "@/lib/directus";
+
+export async function generateMetadata({ params }: { params: { categoryId: string; productId: string } }): Promise<Metadata> {
+  const { productId } = await params;
+  const { categoryId } = await params;
+  const product: Product = await getOneProducts(productId);
+
+  if (!product) {
+    return {
+      title: "Товар не знайдено | FPVmaster",
+      description: "На жаль, товар не знайдено або більше не доступний.",
+    };
+  }
+
+  const baseUrl = "https://fpvmaster.com.ua";
+  const productUrl = `${baseUrl}/${categoryId}/${product.id}`;
+
+  // Title
+  const hasDiscount = product.price_old && product.price < product.price_old;
+  const title = hasDiscount
+    ? `${product.name} — зі знижкою, купити за ${product.price} грн | FPVmaster`
+    : `${product.name} — купити за ${product.price} грн | FPVmaster`;
+
+  // Description (обрізаємо до 160 символів)
+  const description = product.description
+    ? product.description.replace(/\s+/g, " ").slice(0, 160) + "..."
+    : `Купити ${product.name} у магазині FPVmaster. Доставка по Україні.`;
+
+  // OG / Twitter image
+  const image = product.images?.length
+    ? `${process.env.NEXT_PUBLIC_ASSETS_URL || baseUrl}/assets/${product.images[0].directus_files_id}`
+    : `${baseUrl}/og-default.jpg`;
+
+  // Availability
+  const inStock = product.stock && product.stock > 0;
+  const availability = inStock
+    ? "https://schema.org/InStock"
+    : "https://schema.org/OutOfStock";
+
+  // ✅ Product Schema (JSON-LD)
+  const productSchema = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    name: product.name,
+    image: [image],
+    description: product.description,
+    sku: product.sku,
+    brand: {
+      "@type": "Brand",
+      name: product.brand,
+    },
+    manufacturer: {
+      "@type": "Organization",
+      name: product.producer || "FPVmaster",
+    },
+    offers: {
+      "@type": "Offer",
+      url: productUrl,
+      priceCurrency: "UAH",
+      price: product.price,
+      availability,
+    },
+  };
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: productUrl,
+    },
+    openGraph: {
+      type: "website",
+      url: productUrl,
+      title,
+      description,
+      images: [{ url: image }],
+      siteName: "FPVmaster",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+    other: {
+      "script:ld+json": JSON.stringify(productSchema),
+    },
+  };
+}
 
 export default async function ProductPage({ params }: { params: { category: string, productId: string } }) {
   const { productId } = await params;

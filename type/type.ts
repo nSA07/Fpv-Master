@@ -1,5 +1,4 @@
 interface Product {
-  product: any;
   id: string;
   name: string;
   active: boolean;
@@ -14,7 +13,6 @@ interface Product {
   producer: string;
   images: { directus_files_id: string }[];
   brand: string;
-  category: string;
   subcategories: Subcategory;
 }
 
@@ -43,4 +41,20 @@ interface Category {
 interface CategorySectionProps {
   categories: Category[];
   products: Product[];
+}
+
+interface CartProduct {
+  id: string;
+  name: string;
+  price: number; // у гривнях
+  sku: string;
+  images: { directus_files_id: string }[];
+  brand: string;
+  description?: string;
+  stock?: number;
+}
+
+interface CartItem {
+  id: string;
+  quantity: number;
 }

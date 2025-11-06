@@ -25,17 +25,32 @@ export default function Page() {
       </div>
     );
   }
-
+  
   const totalPrice = products.reduce((sum, product) => {
     const cartItem = cartItems.find((i) => i.id === product.id);
     const quantity = cartItem?.quantity || 0;
     return sum + (product.price ?? 0) * quantity;
   }, 0);
 
-  const handleCheckout = () => {
-    console.log("Checkout items:", cartItems);
-    router.push("/checkout");
-  };
+const handleCheckout = async () => {
+  try {
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ products, cartItems }),
+    });
+
+    const data = await res.json();
+    if (data.pageUrl) {
+      window.location.href = data.pageUrl; // переходимо на Mono Checkout
+    } else {
+      alert("Помилка створення оплати");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Помилка під час оплати");
+  }
+};
 
   if (cartItems.length === 0) {
     return (

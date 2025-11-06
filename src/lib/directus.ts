@@ -70,7 +70,7 @@ export async function getProducts(onlyDiscounted?: boolean) {
         subcategories.id,
         subcategories.active,
         subcategories.name,
-        subcategories.category
+        subcategories.category.id
     `
   );
 

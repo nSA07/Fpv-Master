@@ -12,37 +12,47 @@ const poppins = Poppins({
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900']
 });
 
-
 export const metadata: Metadata = {
   title: {
-    default: "FPV Master UA",
-    template: "%s | Назва вашого магазину",
+    default: "FPVmaster — інструменти та обладнання для FPV",
+    template: "%s | FPVmaster",
   },
-  description: "Короткий опис інтернет-магазину для SEO.",
-  keywords: ["купити", "інтернет-магазин", "товари", "бренд"],
-  authors: [{ name: "FPV Master UA" }],
-  metadataBase: new URL("https://fpvmaster.com.ua"),
+  description:
+    "FPVmaster — інтернет-магазин інструментів, запчастин та обладнання для FPV-дронів. Великий вибір, доступні ціни, швидка доставка по Україні.",
+  keywords: [
+    "FPV",
+    "дрон",
+    "аксесуари для FPV-дронів",
+    "FPV обладнання",
+    "купити FPV інструменти",
+    "FPV магазин Україна",
+    "FPV запчастини",
+  ],
+  authors: [{ name: "FPVmaster" }],
+  metadataBase: new URL("https://fpvmaster.com"),
 
   openGraph: {
     type: "website",
-    url: "https://fpvmaster.com.ua",
-    title: "FPV Master UA",
-    description: "Короткий опис вашого магазину для соцмереж.",
-    siteName: "Назва вашого магазину",
+    url: "https://fpvmaster.com",
+    title: "FPVmaster — інструменти та обладнання для FPV",
+    description:
+      "FPVmaster — спеціалізований інтернет-магазин для FPV-пілотів. Інструменти, аксесуари, запчастини та комплектуючі для FPV-дронів.",
+    siteName: "FPVmaster",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Головне превʼю сайту",
+        alt: "FPVmaster — інструменти та обладнання для FPV-дронів",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "FPV Master UA",
-    description: "Короткий опис для Twitter.",
+    title: "FPVmaster — інструменти та обладнання для FPV",
+    description:
+      "FPVmaster — інтернет-магазин з усім необхідним для FPV-дронів: інструменти, комплектуючі, аксесуари.",
     images: ["/og-image.jpg"],
   },
 
