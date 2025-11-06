@@ -1,5 +1,3 @@
-import { CartItem, CartProduct } from "../../type/type";
-
 export function buildMonoPayload(
   products: CartProduct[],
   cartItems: CartItem[]
