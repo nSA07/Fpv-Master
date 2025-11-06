@@ -3,14 +3,12 @@
 import { useCartStore } from "@/store/cartStore";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { CartItem } from "@/components/cart/cart-item";
 import { useCartProducts } from "../hooks/use-cart-products";
 import { useEffect, useState } from "react";
 
 export default function Page() {
   const { items: cartItems, clearCart } = useCartStore();
-  const router = useRouter();
   const { products } = useCartProducts();
   const [hydrated, setHydrated] = useState(false);
 

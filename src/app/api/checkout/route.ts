@@ -1,9 +1,18 @@
-import { NextResponse } from "next/server";
 import { buildMonoPayload } from "@/lib/mono";
 
 export async function POST(req: Request) {
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, X-Token",
+  };
+
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers });
+  }
+
   try {
-    const body = await req.json(); // { products, cartItems }
+    const body = await req.json();
     const payload = buildMonoPayload(body.products, body.cartItems);
 
     const res = await fetch("https://api.monobank.ua/api/merchant/invoice/create", {
@@ -17,15 +26,12 @@ export async function POST(req: Request) {
 
     if (!res.ok) {
       const error = await res.text();
-      console.error("Mono API error:", error);
-      return NextResponse.json({ error }, { status: res.status });
+      return new Response(JSON.stringify({ error }), { status: res.status, headers });
     }
 
     const data = await res.json();
-
-    return NextResponse.json({ pageUrl: data.pageUrl });
+    return new Response(JSON.stringify({ pageUrl: data.pageUrl }), { headers });
   } catch (err) {
-    console.error("Checkout error:", err);
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+    return new Response(JSON.stringify({ error: "Internal error" }), { status: 500, headers });
   }
 }
