@@ -58,3 +58,18 @@ interface CartItem {
   id: string;
   quantity: number;
 }
+
+interface OrderPayload {
+  local_order_id: string;
+  customer_name: string;
+  email: string;
+  phone: string;
+  comment?: string;
+  city: string;
+  city_ref: string;
+  warehouse: string;
+  warehouse_ref: string;
+  products: any[]; // Поле з деталями товарів
+  payment_status: "pending" | "paid" | "failed";
+  shipping_status: "not_shipped" | "shipped" | "delivered";
+}

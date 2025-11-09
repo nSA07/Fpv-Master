@@ -210,3 +210,73 @@ export async function getProductsByCategoryId(id: string) {
   return data.data;
 }
 
+export async function getOrderId(orderId: string) {
+  const res = await fetch(`${API_URL}/items/orders?filter[local_order_id][_eq]=${orderId}`, {
+    headers: { Authorization: `Bearer ${API_TOKEN}` },
+  });
+  const data = await res.json();
+
+  if (data.data.length === 0) {
+    return orderId;
+  }
+}
+
+// --- 1. Створення нового замовлення (POST) ---
+export async function createOrder(data: OrderPayload) {
+    try {
+        const res = await fetch(`${API_URL}/items/orders`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${API_TOKEN}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+            cache: "no-store",
+        });
+
+        if (!res.ok) {
+            const error = await res.json();
+            console.error("Directus CREATE error:", error);
+            // Повертаємо об'єкт помилки, щоб обробити його у route.ts
+            return { errors: error.errors || [{ message: "Failed to create order" }] };
+        }
+
+        const result = await res.json();
+        // Повертаємо дані з Directus, включаючи згенерований ID
+        return { data: result.data }; 
+
+    } catch (error) {
+        console.error("Directus CREATE fetch error:", error);
+        return { errors: [{ message: "Network error during order creation" }] };
+    }
+}
+
+// --- 2. Оновлення існуючого замовлення (PATCH) ---
+export async function updateOrder(orderId: string | number, data: Partial<OrderPayload>) {
+    try {
+        // PATCH-запит напряму за ID Directus
+        const res = await fetch(`${API_URL}/items/orders/${orderId}`, {
+            method: "PATCH",
+            headers: {
+                Authorization: `Bearer ${API_TOKEN}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+            cache: "no-store",
+        });
+
+        if (!res.ok) {
+            const error = await res.json();
+            console.error(`Directus PATCH error for ID ${orderId}:`, error);
+            return { errors: error.errors || [{ message: "Failed to update order" }] };
+        }
+        
+        const result = await res.json();
+        // Повертаємо оновлені дані
+        return { data: result.data };
+
+    } catch (error) {
+        console.error("Directus PATCH fetch error:", error);
+        return { errors: [{ message: "Network error during order update" }] };
+    }
+}

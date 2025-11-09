@@ -30,25 +30,6 @@ export default function Page() {
     return sum + (product.price ?? 0) * quantity;
   }, 0);
 
-const handleCheckout = async () => {
-  try {
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ products, cartItems }),
-    });
-
-    const data = await res.json();
-    if (data.pageUrl) {
-      window.location.href = data.pageUrl; // переходимо на Mono Checkout
-    } else {
-      alert("Помилка створення оплати");
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Помилка під час оплати");
-  }
-};
 
   if (cartItems.length === 0) {
     return (
@@ -94,12 +75,12 @@ const handleCheckout = async () => {
           >
             Очистити кошик
           </Button>
-          <Button
-            className="cursor-pointer"
-            onClick={handleCheckout}
-          >
-            Перейти до оплати
-          </Button>
+
+          <Link href="/checkout">
+            <Button className="cursor-pointer">
+              Оформити замовлення
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

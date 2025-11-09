@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/header/header";
 import { Container } from "@/components/shared/container";
 import { Footer } from "@/components/shared/footer";
+import { OrderStatusChecker } from "@/components/shared/order-status-checker";
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -81,6 +82,7 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} antialiased`}
       >
+        <OrderStatusChecker />
         <div className="min-h-screen flex flex-col bg-[#f5f5f7]">
           <Header />
           <main className="flex-1">
