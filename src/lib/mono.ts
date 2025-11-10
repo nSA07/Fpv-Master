@@ -37,8 +37,8 @@ export async function createMonoInvoice(payload: any) {
   const monoRes = await fetch("https://api.monobank.ua/api/merchant/invoice/create", {
       method: "POST",
       headers: {
-          "X-Token": process.env.MONO_TOKEN!,
-          "Content-Type": "application/json",
+        "X-Token": process.env.MONO_TOKEN!,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
   });

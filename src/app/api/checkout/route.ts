@@ -4,7 +4,6 @@ import { buildMonoPayload } from "@/lib/mono";
 import { createMonoInvoice } from "@/lib/mono";
 
 export async function POST(req: Request) {
-    // ... headers ...
 
     try {
         const body = await req.json();
