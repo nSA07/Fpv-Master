@@ -11,8 +11,6 @@ export function OrderStatusChecker() {
     const checkPaymentStatus = async (currentOrderId: string) => {
         if (!currentOrderId) return;
         
-        console.log(`Checking payment status for local_order_id: ${currentOrderId}`);
-        
         try {
             const checkRes = await fetch(`/api/check-order?orderId=${currentOrderId}`);
             const checkData = await checkRes.json();

@@ -1,7 +1,8 @@
 interface Product {
   id: string;
-  name: string;
   active: boolean;
+  name: string;
+  images: { directus_files_id: string }[];
   price: number;
   price_old?: number | null;
   stock: number;
@@ -11,7 +12,7 @@ interface Product {
   product_attributes: ProductAttribute[] | null;
   equipment?: string[];
   producer: string;
-  images: { directus_files_id: string }[];
+
   brand: string;
   subcategories: Subcategory;
 }
@@ -69,7 +70,7 @@ interface OrderPayload {
   city_ref: string;
   warehouse: string;
   warehouse_ref: string;
-  products: any[]; // Поле з деталями товарів
+  products: any[];
   payment_status: "pending" | "paid" | "failed";
   shipping_status: "not_shipped" | "shipped" | "delivered";
 }

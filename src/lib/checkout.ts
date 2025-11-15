@@ -1,7 +1,6 @@
-// submitCheckout (Клієнтський код)
-
 import { CheckoutFormValues } from "@/app/checkout/page";
 import { useCartStore } from "@/store/cartStore";
+import { toast } from "sonner";
 
 export async function submitCheckout(data: CheckoutFormValues, products: Product[], cartItems: CartItem[]) {
     const cartStore = useCartStore.getState();
@@ -18,7 +17,7 @@ export async function submitCheckout(data: CheckoutFormValues, products: Product
     
     // Визначаємо Directus ID для передачі в єдиний API
     const directusOrderId = checkData.exists ? checkData.orderIdDirectus : null;
-    
+
     // 2️⃣ Єдиний виклик API
     const res = await fetch("/api/checkout", {
         method: "POST", // Завжди POST для зручності
@@ -37,6 +36,6 @@ export async function submitCheckout(data: CheckoutFormValues, products: Product
     if (result.pageUrl) {
         window.location.href = result.pageUrl;
     } else {
-        alert(result.error || "Помилка створення оплати");
+        toast.error(result.error || "Помилка створення оплати");
     }
 }

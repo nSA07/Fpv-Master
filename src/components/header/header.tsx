@@ -9,7 +9,7 @@ import { CartIcon } from "./cart";
 
 export const Header: React.FC = async () => {
   const categories: Category[] = await getCategories();
-
+  
   return (
     // 1. Чистий білий фон (або дуже світло-сірий) та легка тінь/тонка рамка
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-sm flex justify-center items-center border-b border-gray-200">

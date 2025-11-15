@@ -5,6 +5,7 @@ import { Header } from "@/components/header/header";
 import { Container } from "@/components/shared/container";
 import { Footer } from "@/components/shared/footer";
 import { OrderStatusChecker } from "@/components/shared/order-status-checker";
+import { Toaster } from "@/components/ui/sonner"
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -86,12 +87,11 @@ export default function RootLayout({
         <div className="min-h-screen flex flex-col bg-[#f5f5f7]">
           <Header />
           <main className="flex-1">
-            <div className="flex min-h-screen flex-col">
-              <Container className="py-10">{children}</Container>
-            </div>
+            <Container className="py-10">{children}</Container>
           </main>
           <Footer />
         </div>
+        <Toaster />
       </body>
     </html>
   );

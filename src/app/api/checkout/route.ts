@@ -37,7 +37,6 @@ export async function POST(req: Request) {
             payment_status: "pending",
             shipping_status: "not_shipped",
         };
-
         // 2️⃣ СТВОРЕННЯ чи ОНОВЛЕННЯ?
         if (directusOrderId) {
             // ОНОВЛЕННЯ (якщо Directus ID вже існує)
@@ -46,6 +45,7 @@ export async function POST(req: Request) {
         } else {
             // СТВОРЕННЯ (якщо це нове замовлення)
             directusRes = await createOrder(orderData); // Ваш існуючий код
+            
             directusIdToUse = directusRes.data.id;
         }
 

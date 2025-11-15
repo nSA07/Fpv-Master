@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { QuantitySelector } from "@/components/product/quantity-selector";
 import { RelatedProductsCarousel } from "@/components/product/related-products-carousel";
-import { getOneProducts, getProductsByCategoryId } from "@/lib/directus";
+import { getOneProduct, getProductsByCategoryId } from "@/lib/directus";
 
 export async function generateMetadata({ params }: { params: { categoryId: string; productId: string } }): Promise<Metadata> {
   const { productId } = await params;
   const { categoryId } = await params;
-  const product: Product = await getOneProducts(productId);
+  const product: Product = await getOneProduct(productId);
 
   if (!product) {
     return {
@@ -94,7 +94,7 @@ export async function generateMetadata({ params }: { params: { categoryId: strin
 
 export default async function ProductPage({ params }: { params: { category: string, productId: string } }) {
   const { productId } = await params;
-  const product: Product = await getOneProducts(productId);
+  const product: Product = await getOneProduct(productId);
   const productById = await getProductsByCategoryId(product.subcategories.category.id);
   const filteredProduct = productById
     ? productById.filter((p: { id: string; }) => p.id !== productId)
