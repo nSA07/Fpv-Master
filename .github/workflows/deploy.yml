@@ -9,8 +9,8 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }} 
-  CONTAINER_PORT: 3000 # Порт, який Next.js слухає всередині Dockerfile
-  HOST_PORT: 8080      # Порт, який буде відкрито на VPS
+  CONTAINER_PORT: 3000
+  HOST_PORT: 8080
 
 jobs:
   deploy:
@@ -18,7 +18,12 @@ jobs:
     steps:
       - name: ⬇️ Checkout code
         uses: actions/checkout@v4
-
+      
+      # 1. Активація Buildx для коректної роботи кешування
+      - name: 🛠️ Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      # 2. Логін на GitHub Container Registry
       - name: 🔐 Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -26,6 +31,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }} 
 
+      # 3. Збірка та завантаження образу
       - name: 🏗️ Build and Push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -34,8 +40,8 @@ jobs:
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
       
+      # 4. Деплой на VPS через SSH
       - name: 📤 Deploy to VPS and Run Container
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -48,22 +54,27 @@ jobs:
             
             echo "--- Запуск деплою на VPS ---"
             
+            # Логін на VPS до реєстру
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
             
             echo "Завантаження образу: $IMAGE_URL"
             docker pull $IMAGE_URL
 
+            # Зупинка та видалення старого контейнера
             if docker ps -a | grep -q $APP_NAME; then
                 echo "Зупинка та видалення старого контейнера..."
                 docker stop $APP_NAME
                 docker rm $APP_NAME
             fi
             
+            # Запуск нового контейнера
             docker run -d \
                 --name $APP_NAME \
                 -p ${{ env.HOST_PORT }}:${{ env.CONTAINER_PORT }} \
                 --restart unless-stopped \
                 $IMAGE_URL
+                
+            # Очищення системи
             docker system prune -f
             
             echo "--- Деплой успішно завершено! ---"
