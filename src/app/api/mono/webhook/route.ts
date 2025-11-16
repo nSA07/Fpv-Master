@@ -110,6 +110,7 @@ export async function POST(req: NextRequest) {
             // Вебхук повинен повертати 400, якщо основні дані відсутні
             return NextResponse.json({ error: "Missing reference" }, { status: 400 });
         }
+        console.log(webhookData);
         
         const directusOrderId = webhookData.reference; 
         const newStatus = webhookData.status === "success" ? "paid" : "failed";
