@@ -4,6 +4,7 @@ export function buildMonoPayload(
   orderId: string
 ) {
   const DIRECTUS_URL = process.env.NEXT_PUBLIC_DIRECTUS_URL;
+  const MONO_URL = process.env.NEXT_PUBLIC_ASSETS_URL;
 
   const items = products
     .map((product) => {
@@ -38,7 +39,9 @@ export function buildMonoPayload(
       reference: orderId,
       destination: "Оплата замовлення з FPV Master",
       basketOrder: items,
-    }
+    },
+    webHookUrl: `${MONO_URL}/api/mono/webhook`, 
+    redirectUrl: `${MONO_URL}/cart`,
   };
 }
 
