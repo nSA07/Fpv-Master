@@ -1,15 +1,15 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# *** ДОДАТИ ОГОЛОШЕННЯ ARG ТУТ ***
+RUN npm install -g pnpm 
+
 ARG NEXT_PUBLIC_DIRECTUS_URL 
 ARG NEXT_PUBLIC_ASSETS_URL 
 
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile 
 COPY . .
 
-# *** ДОДАТИ ПЕРЕДАЧУ ARG В ENV ТУТ ***
 ENV NEXT_PUBLIC_DIRECTUS_URL=${NEXT_PUBLIC_DIRECTUS_URL}
 ENV NEXT_PUBLIC_ASSETS_URL=${NEXT_PUBLIC_ASSETS_URL}
 
