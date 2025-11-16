@@ -21,7 +21,11 @@ jobs:
     steps:
       - name: ⬇️ Checkout code
         uses: actions/checkout@v4
-      
+
+      - name: 🆔 Convert repository name to lowercase
+        id: repo_lc
+        run: echo "value=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
       - name: 🛠️ Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         
@@ -37,7 +41,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}:latest
+          tags: ${{ env.REGISTRY }}/${{ steps.repo_lc.outputs.value }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
       
@@ -49,12 +53,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             APP_NAME="next-shop-app"
-            IMAGE_URL="${{ env.REGISTRY }}/${{ github.repository }}:latest"
-            IMAGE_URL=$(echo "$IMAGE_URL" | tr '[:upper:]' '[:lower:]')
-            
+            IMAGE_URL="${{ env.REGISTRY }}/${{ steps.repo_lc.outputs.value }}:latest"
+
             echo "--- Запуск деплою на VPS ---"
             
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ${{ env.REGISTRY }} -u "${{ github.actor }}" --password-stdin
             
             echo "Завантаження образу: $IMAGE_URL"
             docker pull $IMAGE_URL
