@@ -44,47 +44,58 @@ jobs:
           tags: ${{ env.REGISTRY }}/${{ steps.repo_lc.outputs.value }}:latest
           build-args: |
             NEXT_PUBLIC_DIRECTUS_URL=${{ secrets.DIRECTUS_URL }}
-            DIRECTUS_URL=${{ secrets.DIRECTUS_URL }}
-            DIRECTUS_TOKEN=${{ secrets.DIRECTUS_TOKEN }}
             NEXT_PUBLIC_ASSETS_URL=${{ secrets.NEXT_PUBLIC_ASSETS_URL }}
-            MONO_TOKEN=${{ secrets.MONO_TOKEN }}
-            DIRECTUS_BASE_URL=${{ secrets.DIRECTUS_BASE_URL }}
-            NOVA_POSHTA_API_KEY=${{ secrets.NOVA_POSHTA_API_KEY }}
-            RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
-            CLIENT_ORDER_URL_BASE=${{ secrets.CLIENT_ORDER_URL_BASE }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: 📤 Deploy to VPS via Docker Compose
+      - name: 📤 Deploy to VPS and Run Container
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "--- Деплой на VPS через Docker Compose ---"
-            cd /path/to/your/project  # <--- вкажи шлях до проєкту на VPS
+            APP_NAME="next-shop-app"
+            IMAGE_URL="${{ env.REGISTRY }}/${{ steps.repo_lc.outputs.value }}:latest"
+            
+            echo "--- Запуск деплою на VPS ---"
+            
+            # Логін на VPS до реєстру
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+            
+            echo "Завантаження образу: $IMAGE_URL"
+            docker pull $IMAGE_URL
 
-            # Створюємо .env на VPS з секретів
-            cat > .env <<EOF
-            NEXT_PUBLIC_DIRECTUS_URL=${{ secrets.DIRECTUS_URL }}
-            DIRECTUS_URL=${{ secrets.DIRECTUS_URL }}
-            DIRECTUS_TOKEN=${{ secrets.DIRECTUS_TOKEN }}
-            NEXT_PUBLIC_ASSETS_URL=${{ secrets.NEXT_PUBLIC_ASSETS_URL }}
-            MONO_TOKEN=${{ secrets.MONO_TOKEN }}
-            DIRECTUS_BASE_URL=${{ secrets.DIRECTUS_BASE_URL }}
-            NOVA_POSHTA_API_KEY=${{ secrets.NOVA_POSHTA_API_KEY }}
-            RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
-            CLIENT_ORDER_URL_BASE=${{ secrets.CLIENT_ORDER_URL_BASE }}
-            HOST_PORT=${{ env.HOST_PORT }}
-            CONTAINER_PORT=${{ env.CONTAINER_PORT }}
-            EOF
-
-            # Запускаємо через Docker Compose
-            docker-compose pull
-            docker-compose up -d --build
-
+            # Зупинка та видалення старого контейнера
+            if docker ps -a | grep -q $APP_NAME; then
+                echo "Зупинка та видалення старого контейнера..."
+                docker stop $APP_NAME
+                docker rm $APP_NAME
+            fi
+            
+            # Запуск нового контейнера, передаючи ВСІ RUN-TIME ENV через -e
+            echo "Запуск нового контейнера..."
+            docker run -d \
+                --name $APP_NAME \
+                -p ${{ env.HOST_PORT }}:${{ env.CONTAINER_PORT }} \
+                --restart unless-stopped \
+                
+                # *** ПЕРЕДАЧА ВСІХ RUN-TIME ENV ***
+                -e DIRECTUS_URL="${{ secrets.DIRECTUS_URL }}" \
+                -e DIRECTUS_TOKEN="${{ secrets.DIRECTUS_TOKEN }}" \
+                -e MONO_TOKEN="${{ secrets.MONO_TOKEN }}" \
+                -e DIRECTUS_BASE_URL="${{ secrets.DIRECTUS_BASE_URL }}" \
+                -e NOVA_POSHTA_API_KEY="${{ secrets.NOVA_POSHTA_API_KEY }}" \
+                -e RESEND_API_KEY="${{ secrets.RESEND_API_KEY }}" \
+                -e CLIENT_ORDER_URL_BASE="${{ secrets.CLIENT_ORDER_URL_BASE }}" \
+                
+                # Передаємо NEXT_PUBLIC_ змінні (хоча вони вбудовані, це хороша практика)
+                -e NEXT_PUBLIC_DIRECTUS_URL="${{ secrets.DIRECTUS_URL }}" \
+                -e NEXT_PUBLIC_ASSETS_URL="${{ secrets.NEXT_PUBLIC_ASSETS_URL }}" \
+                
+                $IMAGE_URL
+                
             # Очищення системи
             docker system prune -f
-
+            
             echo "--- Деплой успішно завершено! ---"
