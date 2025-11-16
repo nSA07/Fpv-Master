@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import * as crypto from 'crypto';
 
 const DIRECTUS_URL = process.env.DIRECTUS_URL!; 
 const DIRECTUS_TOKEN = process.env.DIRECTUS_TOKEN!;
 const RESEND_API_KEY = process.env.RESEND_API_KEY!; 
 const CLIENT_ORDER_URL_BASE = process.env.CLIENT_ORDER_URL_BASE!;
+const MONOBANK_PUBKEY = process.env.MONO_TOKEN!;
 
 // Ініціалізація Resend
 const resend = new Resend(RESEND_API_KEY);
@@ -12,11 +14,39 @@ const resend = new Resend(RESEND_API_KEY);
 /**
  * Оновлює сток товарів у Directus, віднімаючи куплену кількість.
  *
+ * @param signatureBase64 - Значення заголовка X-Sign.
+ * @param message - Сире тіло запиту (RAW body string).
+ * @param pubKeyBase64 - Відкритий ключ MonoBank у Base64-кодуванні (з API).
  * @param products - Масив товарів, які містять `sku` та `quantity`.
  * @param directusUrl - URL Directus.
  * @param directusToken - Токен доступу Directus.
  * @param directusOrderId - ID замовлення для логування.
  */
+
+function verifyMonoBankSignature(
+    signatureBase64: string,
+    message: string,
+    pubKeyBase64: string
+): boolean {
+    try {
+        const signatureBuf = Buffer.from(signatureBase64, 'base64');
+        const publicKeyBuf = Buffer.from(pubKeyBase64, 'base64');
+
+        // Створення об'єкта верифікатора з алгоритмом SHA256
+        const verify = crypto.createVerify('SHA256');
+
+        // Важливо: додаємо сире повідомлення (RAW body string)
+        verify.update(message);
+
+        // Верифікація. Повертає true, якщо підпис дійсний.
+        return verify.verify(publicKeyBuf, signatureBuf);
+
+    } catch (e) {
+        console.error("Помилка під час верифікації підпису MonoBank:", e);
+        return false;
+    }
+}
+
 async function handleStockUpdate(products: any[], directusUrl: string, directusToken: string, directusOrderId: string) {
     if (!products || products.length === 0) {
         console.log(`Замовлення ${directusOrderId}: Товари для оновлення стоку не знайдено.`);
@@ -102,8 +132,36 @@ async function handleStockUpdate(products: any[], directusUrl: string, directusT
 
 
 export async function POST(req: NextRequest) {
-    // Деструктуризація для логування, щоб не втратити жодних даних вебхука
-    const webhookData = await req.json();
+    // 1. Отримання сирого тіла та заголовка
+    const rawBody = await req.text(); // <<-- Отримуємо сирий рядок для верифікації
+    const xSignBase64 = req.headers.get("x-sign");
+    
+    // Якщо підпис або ключ відсутній - це помилка налаштування
+    if (!xSignBase64) {
+        console.error("Заголовок X-Sign відсутній. Ймовірна атака або невірне налаштування MonoBank.");
+        return NextResponse.json({ error: "Missing X-Sign header" }, { status: 403 }); // Заборонено
+    }
+    if (!MONOBANK_PUBKEY) {
+        console.error("Змінна оточення MONOBANK_PUBKEY не встановлена.");
+        return NextResponse.json({ error: "Server misconfiguration" }, { status: 500 });
+    }
+
+    // 2. Верифікація підпису
+    const isSignatureValid = verifyMonoBankSignature(xSignBase64, rawBody, MONOBANK_PUBKEY);
+
+    if (!isSignatureValid) {
+        console.error("Верифікація підпису MonoBank не пройшла. Потенційна підробка запиту.");
+        return NextResponse.json({ error: "Invalid signature" }, { status: 403 }); // Заборонено
+    }
+
+    // 3. Після верифікації, безпечно парсимо тіло в JSON
+    let webhookData: any;
+    try {
+        webhookData = JSON.parse(rawBody);
+    } catch (e) {
+        console.error("Неможливо розпарсити тіло вебхука як JSON:", e);
+        return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
 
     try {
         if (!webhookData.reference) {
