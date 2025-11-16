@@ -30,16 +30,15 @@ function verifyMonoBankSignature(
 ): boolean {
     try {
         const signatureBuf = Buffer.from(signatureBase64, 'base64');
-        const publicKeyBuf = Buffer.from(pubKeyBase64, 'base64');
 
-        // Створення об'єкта верифікатора з алгоритмом SHA256
+        const fullPemKey = Buffer.from(pubKeyBase64, 'base64').toString(); 
+
         const verify = crypto.createVerify('SHA256');
 
-        // Важливо: додаємо сире повідомлення (RAW body string)
         verify.update(message);
+        verify.end();
 
-        // Верифікація. Повертає true, якщо підпис дійсний.
-        return verify.verify(publicKeyBuf, signatureBuf);
+        return verify.verify(fullPemKey, signatureBuf);
 
     } catch (e) {
         console.error("Помилка під час верифікації підпису MonoBank:", e);
