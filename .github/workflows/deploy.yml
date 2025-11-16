@@ -5,14 +5,14 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  packages: write
+
 env:
   REGISTRY: ghcr.io
   CONTAINER_PORT: 3000
   HOST_PORT: 8080
-
-permissions:
-  contents: read
-  packages: write
 
 jobs:
   deploy:
@@ -28,7 +28,7 @@ jobs:
 
       - name: 🛠️ Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        
+
       - name: 🔐 Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -42,37 +42,49 @@ jobs:
           context: .
           push: true
           tags: ${{ env.REGISTRY }}/${{ steps.repo_lc.outputs.value }}:latest
+          build-args: |
+            NEXT_PUBLIC_DIRECTUS_URL=${{ secrets.DIRECTUS_URL }}
+            DIRECTUS_URL=${{ secrets.DIRECTUS_URL }}
+            DIRECTUS_TOKEN=${{ secrets.DIRECTUS_TOKEN }}
+            NEXT_PUBLIC_ASSETS_URL=${{ secrets.NEXT_PUBLIC_ASSETS_URL }}
+            MONO_TOKEN=${{ secrets.MONO_TOKEN }}
+            DIRECTUS_BASE_URL=${{ secrets.DIRECTUS_BASE_URL }}
+            NOVA_POSHTA_API_KEY=${{ secrets.NOVA_POSHTA_API_KEY }}
+            RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
+            CLIENT_ORDER_URL_BASE=${{ secrets.CLIENT_ORDER_URL_BASE }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      
-      - name: 📤 Deploy to VPS and Run Container
+
+      - name: 📤 Deploy to VPS via Docker Compose
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            APP_NAME="next-shop-app"
-            IMAGE_URL="${{ env.REGISTRY }}/${{ steps.repo_lc.outputs.value }}:latest"
+            echo "--- Деплой на VPS через Docker Compose ---"
+            cd /path/to/your/project  # <--- вкажи шлях до проєкту на VPS
 
-            echo "--- Запуск деплою на VPS ---"
-            
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ${{ env.REGISTRY }} -u "${{ github.actor }}" --password-stdin
-            
-            echo "Завантаження образу: $IMAGE_URL"
-            docker pull $IMAGE_URL
+            # Створюємо .env на VPS з секретів
+            cat > .env <<EOF
+            NEXT_PUBLIC_DIRECTUS_URL=${{ secrets.DIRECTUS_URL }}
+            DIRECTUS_URL=${{ secrets.DIRECTUS_URL }}
+            DIRECTUS_TOKEN=${{ secrets.DIRECTUS_TOKEN }}
+            NEXT_PUBLIC_ASSETS_URL=${{ secrets.NEXT_PUBLIC_ASSETS_URL }}
+            MONO_TOKEN=${{ secrets.MONO_TOKEN }}
+            DIRECTUS_BASE_URL=${{ secrets.DIRECTUS_BASE_URL }}
+            NOVA_POSHTA_API_KEY=${{ secrets.NOVA_POSHTA_API_KEY }}
+            RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
+            CLIENT_ORDER_URL_BASE=${{ secrets.CLIENT_ORDER_URL_BASE }}
+            HOST_PORT=${{ env.HOST_PORT }}
+            CONTAINER_PORT=${{ env.CONTAINER_PORT }}
+            EOF
 
-            if docker ps -a | grep -q $APP_NAME; then
-                docker stop $APP_NAME
-                docker rm $APP_NAME
-            fi
-            
-            docker run -d \
-                --name $APP_NAME \
-                -p ${{ env.HOST_PORT }}:${{ env.CONTAINER_PORT }} \
-                --restart unless-stopped \
-                $IMAGE_URL
-                
+            # Запускаємо через Docker Compose
+            docker-compose pull
+            docker-compose up -d --build
+
+            # Очищення системи
             docker system prune -f
-            
+
             echo "--- Деплой успішно завершено! ---"
