@@ -4,7 +4,7 @@ import { QuantitySelector } from "@/components/product/quantity-selector";
 import { RelatedProductsCarousel } from "@/components/product/related-products-carousel";
 import { getOneProduct, getProductsByCategorySlug } from "@/lib/directus";
 
-export async function generateMetadata({ params }: { params: { productSlug: string; categorySlug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ categorySlug: string, productSlug: string }> }): Promise<Metadata> {
   const { productSlug } = await params;
   const { categorySlug } = await params;
   const product: Product = await getOneProduct(productSlug);
@@ -92,7 +92,7 @@ export async function generateMetadata({ params }: { params: { productSlug: stri
   };
 }
 
-export default async function Page({ params }: { params: { categorySlug: string, productSlug: string } }) {
+export default async function Page({ params }: { params: Promise<{ categorySlug: string, productSlug: string }> }) {
   const { productSlug } = await params;
   const product: Product = await getOneProduct(productSlug);
   const productBySlug = await getProductsByCategorySlug(product.subcategories.category.slug);
