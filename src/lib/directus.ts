@@ -39,7 +39,16 @@ export async function directusFetch<T>(
 // === КАТЕГОРІЇ ===
 export async function getCategories() {
   const data = await directusFetch<any[]>(
-    `/items/categories?filter[active][_eq]=true&fields=id,active,name,slug,children_subcategory.id,children_subcategory.active,children_subcategory.name,children_subcategory.category.id`
+    `/items/categories?filter[active][_eq]=true&fields=
+      id,
+      active,
+      name,
+      slug,
+      children_subcategory.id,
+      children_subcategory.active,
+      children_subcategory.name,
+      children_subcategory.category.id,
+      children_subcategory.category.slug`
   );
 
   return data.map(cat => ({
@@ -48,10 +57,20 @@ export async function getCategories() {
   }));
 }
 
-export async function getOneCategory(id: string) {
-  const data: Category = await directusFetch<any>(
-    `/items/categories/${id}?fields=id,active,name,slug,children_subcategory.id,children_subcategory.active,children_subcategory.name`
+export async function getOneCategory(slug: string) {
+  const res = await directusFetch<any>(
+    `/items/categories?filter[slug][_eq]=${slug}&fields=
+      id,
+      active,
+      name,
+      slug,
+      children_subcategory.id,
+      children_subcategory.slug,
+      children_subcategory.active,
+      children_subcategory.name`
   );
+
+  const data: Category | undefined = res[0];  
 
   if (!data || !data.active) notFound();
 
@@ -65,7 +84,7 @@ export async function getOneCategory(id: string) {
 export async function getProducts(onlyDiscounted?: boolean) {
   const params = new URLSearchParams({
     "filter[active][_eq]": "true",
-    fields: "id,active,name,description,price,price_old,sku,brand,stock,images.directus_files_id,features,product_attributes,subcategories.id,subcategories.active,subcategories.name,subcategories.category.id",
+    fields: "id,slug,active,name,description,price,price_old,sku,brand,stock,images.directus_files_id,features,product_attributes,subcategories.id,subcategories.slug,subcategories.active,subcategories.name,subcategories.category.id, subcategories.category.slug",
   });
 
   if (onlyDiscounted) {
@@ -75,15 +94,66 @@ export async function getProducts(onlyDiscounted?: boolean) {
   return await directusFetch<any[]>(`/items/products?${params.toString()}`);
 }
 
-export async function getOneProduct(id: string) {
-  return await directusFetch<any>(
-    `/items/products/${id}?fields=id,active,name,description,price,price_old,sku,brand,stock,images.directus_files_id,features,equipment,producer,product_attributes.id,product_attributes.name,product_attributes.value,subcategories.id,subcategories.active,subcategories.name,subcategories.category.id,subcategories.category.active`
+export async function getOneProduct(slug: string) {
+  const data = await directusFetch<any[]>(
+    `/items/products?filter[slug][_eq]=${slug}&fields=
+      id,
+      slug,
+      active,
+      name,
+      description,
+      price,
+      price_old,
+      sku,
+      brand,
+      stock,
+      images.directus_files_id,
+      features,
+      equipment,
+      producer,
+      product_attributes.id,
+      product_attributes.name,
+      product_attributes.value,
+      subcategories.id,
+      subcategories.slug,
+      subcategories.active,
+      subcategories.name,
+      subcategories.category.id,
+      subcategories.category.slug,
+      subcategories.category.active`
   );
+
+  // Directus повертає масив
+  return data[0] ?? null;
 }
 
-export async function getProductsByCategoryId(id: string) {
+export async function getProductsByCategorySlug(slug: string) {
   return await directusFetch<any[]>(
-    `/items/products?filter[subcategories][category][id][_eq]=${id}&filter[active][_eq]=true&filter[subcategories][active][_eq]=true&fields=id,active,name,description,price,price_old,sku,brand,stock,images.directus_files_id,features,equipment,producer,product_attributes.id,product_attributes.name,product_attributes.value,subcategories.id,subcategories.active,subcategories.name,subcategories.category.id,subcategories.category.active`
+    `/items/products?filter[subcategories][category][slug][_eq]=${slug}&filter[active][_eq]=true&filter[subcategories][active][_eq]=true&fields=
+      id,
+      slug,
+      active,
+      name,
+      description,
+      price,
+      price_old,
+      sku,
+      brand,
+      stock,
+      images.directus_files_id,
+      features,
+      equipment,
+      producer,
+      product_attributes.id,
+      product_attributes.name,
+      product_attributes.value,
+      subcategories.id,
+      subcategories.slug,
+      subcategories.active,
+      subcategories.name,
+      subcategories.category.id,
+      subcategories.category.slug,
+      subcategories.category.active`
   );
 }
 
@@ -94,7 +164,6 @@ export async function getOrderByLocalId(orderId: string) {
   );
   return orders.length > 0 ? orders[0] : null;
 }
-
 
 export async function createOrder(data: OrderPayload) {
     try {

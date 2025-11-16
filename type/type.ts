@@ -1,5 +1,6 @@
 interface Product {
   id: string;
+  slug: string;
   active: boolean;
   name: string;
   images: { directus_files_id: string }[];

@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { QuantitySelector } from "@/components/product/quantity-selector";
 import { RelatedProductsCarousel } from "@/components/product/related-products-carousel";
-import { getOneProduct, getProductsByCategoryId } from "@/lib/directus";
+import { getOneProduct, getProductsByCategorySlug } from "@/lib/directus";
 
-export async function generateMetadata({ params }: { params: { categoryId: string; productId: string } }): Promise<Metadata> {
-  const { productId } = await params;
-  const { categoryId } = await params;
-  const product: Product = await getOneProduct(productId);
+export async function generateMetadata({ params }: { params: { productSlug: string; categorySlug: string } }): Promise<Metadata> {
+  const { productSlug } = await params;
+  const { categorySlug } = await params;
+  const product: Product = await getOneProduct(productSlug);
 
   if (!product) {
     return {
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: { categoryId: strin
   }
 
   const baseUrl = "https://fpvmaster.com.ua";
-  const productUrl = `${baseUrl}/${categoryId}/${product.id}`;
+  const productUrl = `${baseUrl}/${categorySlug}/${product.slug}`;
 
   // Title
   const hasDiscount = product.price_old && product.price < product.price_old;
@@ -92,13 +92,13 @@ export async function generateMetadata({ params }: { params: { categoryId: strin
   };
 }
 
-export default async function ProductPage({ params }: { params: { category: string, productId: string } }) {
-  const { productId } = await params;
-  const product: Product = await getOneProduct(productId);
-  const productById = await getProductsByCategoryId(product.subcategories.category.id);
-  const filteredProduct = productById
-    ? productById.filter((p: { id: string; }) => p.id !== productId)
-    : productById;
+export default async function Page({ params }: { params: { categorySlug: string, productSlug: string } }) {
+  const { productSlug } = await params;
+  const product: Product = await getOneProduct(productSlug);
+  const productBySlug = await getProductsByCategorySlug(product.subcategories.category.slug);
+  const filteredProduct = productBySlug
+    ? productBySlug.filter((p: { id: string; }) => p.id !== productSlug)
+    : productBySlug;
   const isInactive =
     !product.active ||
     !product.subcategories?.active ||
@@ -113,9 +113,7 @@ export default async function ProductPage({ params }: { params: { category: stri
   
   return (
     <div className="flex flex-col gap-9">
-      {/* Верхній блок */}
       <div className="grid grid-cols-12 gap-6 xl:gap-8 xl:mb-8 items-start">
-        {/* 🖼️ Картинка */}
         <div className={`
             col-span-12 
             md:col-span-8 md:col-start-3 
@@ -131,7 +129,6 @@ export default async function ProductPage({ params }: { params: { category: stri
           />
         </div>
 
-        {/* ℹ️ Інфо про товар */}
         <div className="
           col-span-12 
           lg:col-span-6 
@@ -143,7 +140,6 @@ export default async function ProductPage({ params }: { params: { category: stri
         >
           <h1 className="text-xl sm:text-2xl font-bold leading-tight">{product.name}</h1>
 
-          {/* Бренд */}
           <p className="text-gray-500 text-sm sm:text-base">
             Бренд: {product.brand || "Без бренду"}
           </p>
@@ -151,7 +147,6 @@ export default async function ProductPage({ params }: { params: { category: stri
             <p className="text-gray-500 text-sm sm:text-base">Виробник: {product.producer}</p>
           )}
 
-          {/* Наявність */}
           <p
             className={`text-sm sm:text-base font-medium ${
               product.stock > 0 ? "text-green-600" : "text-red-500"
@@ -160,10 +155,8 @@ export default async function ProductPage({ params }: { params: { category: stri
             {product.stock > 0 ? "Є в наявності" : "Немає в наявності"}
           </p>
 
-          {/* Кнопка */}
           <QuantitySelector product={product} disabled={isInactive} />
 
-          {/* Інфо блок */}
           <div className="p-3 sm:p-4 rounded-lg bg-gray-50 text-sm flex flex-col gap-3 text-gray-700">
             <div>
               <h3 className="font-semibold text-gray-900">Оплата</h3>
@@ -181,8 +174,6 @@ export default async function ProductPage({ params }: { params: { category: stri
         </div>
       </div>
 
-
-      {/* Нижній блок */}
       <div className="grid gap-6 grid-cols-12 pb-8">
         <div className="col-span-12 space-y-6 mx-auto w-full">
           {product.description ? (
@@ -238,7 +229,6 @@ export default async function ProductPage({ params }: { params: { category: stri
           
           <RelatedProductsCarousel products={filteredProduct}/>
 
-          {/* Заглушка */}
           {!product.description &&
             (!product.features || product.features.length === 0) &&
             (!product.product_attributes || product.product_attributes.length === 0) &&

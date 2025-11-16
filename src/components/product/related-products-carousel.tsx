@@ -23,7 +23,6 @@ export const RelatedProductsCarousel = ({ products }: RelatedProductsCarouselPro
     <div className="w-full mt-10">
       <h2 className="text-2xl font-semibold mb-6">Схожі товари</h2>
 
-      {/* робимо контейнер відносним */}
       <div className="relative">
         <Carousel
           opts={{
@@ -39,11 +38,11 @@ export const RelatedProductsCarousel = ({ products }: RelatedProductsCarouselPro
                 className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
               >
                 <Link
-                  href={`/${p.subcategories?.category.id}/${p.id}`}
+                  href={`/${p.subcategories?.category.slug}/${p.slug}`}
                   className="focus:outline-none h-full block"
                 >
                   <div className="bg-white rounded-lg overflow-hidden transition p-3 h-full flex flex-col">
-                    {/* Картинка */}
+
                     <div className="aspect-square flex items-center justify-center rounded-md mb-3">
                       {p.images ? (
                         <img
@@ -56,7 +55,6 @@ export const RelatedProductsCarousel = ({ products }: RelatedProductsCarouselPro
                       )}
                     </div>
 
-                    {/* Назва з тултіпом */}
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -70,7 +68,6 @@ export const RelatedProductsCarousel = ({ products }: RelatedProductsCarouselPro
                       </Tooltip>
                     </TooltipProvider>
 
-                    {/* Ціна */}
                     <PriceMiniDisplay price={p.price} price_old={p.price_old} />
                   </div>
                 </Link>
@@ -78,7 +75,6 @@ export const RelatedProductsCarousel = ({ products }: RelatedProductsCarouselPro
             ))}
           </CarouselContent>
 
-          {/* Стрілки всередині контейнера */}
           <CarouselPrevious className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full shadow pointer-events-auto" />
           <CarouselNext className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full shadow pointer-events-auto" />
         </Carousel>

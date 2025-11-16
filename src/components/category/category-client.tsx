@@ -26,46 +26,38 @@ export const CategoryClient: React.FC<CategoryClientProps> = ({
   const [filters, setFilters] = useState<FiltersState>({
     subcategories: [],
     brands: [],
-    stock: [], // ✅ новий фільтр
+    stock: [],
   });
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  // 🔥 Клієнтська фільтрація
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      // Підкатегорії
       if (
         filters.subcategories.length > 0 &&
         !filters.subcategories.includes(p.subcategories.id)
       )
         return false;
 
-      // Бренди (враховуємо null як "No Brand")
       const brand = p.brand ?? "No Brand";
       if (filters.brands.length > 0 && !filters.brands.includes(brand))
         return false;
 
-      // Ціна
       if (filters.priceMin !== undefined && p.price < filters.priceMin)
         return false;
       if (filters.priceMax !== undefined && p.price > filters.priceMax)
         return false;
 
-      // ✅ Наявність
       if (filters.stock?.length) {
         const isInStock = p.stock > 0;
 
-        // Якщо вибрано тільки "Є в наявності"
         if (filters.stock.includes("in") && !filters.stock.includes("out")) {
           if (!isInStock) return false;
         }
 
-        // Якщо вибрано тільки "Немає"
         if (filters.stock.includes("out") && !filters.stock.includes("in")) {
           if (isInStock) return false;
         }
-        // Якщо вибрано обидва — не фільтруємо
       }
 
       return true;

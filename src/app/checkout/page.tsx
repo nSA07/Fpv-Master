@@ -101,47 +101,47 @@ export default function CheckoutPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Прізвище*</FormLabel>
-                    <FormControl>
-                    <Input placeholder="Прізвище" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Ім’я*</FormLabel>
-                    <FormControl>
-                    <Input placeholder="Ім’я" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            <FormField
-                control={form.control}
-                name="middleName"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>По-батькові*</FormLabel>
-                    <FormControl>
-                    <Input placeholder="По-батькові" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                  <FormItem>
+                      <FormLabel>Прізвище*</FormLabel>
+                      <FormControl>
+                      <Input placeholder="Прізвище" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                  </FormItem>
+                  )}
+              />
+              <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                  <FormItem>
+                      <FormLabel>Ім’я*</FormLabel>
+                      <FormControl>
+                      <Input placeholder="Ім’я" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                  </FormItem>
+                  )}
+              />
+              <FormField
+                  control={form.control}
+                  name="middleName"
+                  render={({ field }) => (
+                  <FormItem>
+                      <FormLabel>По-батькові*</FormLabel>
+                      <FormControl>
+                      <Input placeholder="По-батькові" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                  </FormItem>
+                  )}
+              />
+              </div>
 
               <FormField
                 control={form.control}
@@ -187,13 +187,21 @@ export default function CheckoutPage() {
                   </FormItem>
                 )}
               />
-                <NovaPoshtaSelect form={form} />
-              <Button
-                type="submit"
-                className="w-full mt-4 bg-black text-white hover:bg-gray-900"
-              >
-                Перейти до оплати
-              </Button>
+              <NovaPoshtaSelect form={form} />
+              <div className="flex justify-end">
+                <Button
+                  type="submit"
+                  className="px-5 py-5 cursor-pointer rounded-lg"
+                  aria-label="Оформити замовлення через Mono"
+                >
+                  <img
+                    src="/monocheckout_logo_white.svg"
+                    alt="mono_logo"
+                    aria-hidden="true"
+                    className="w-60 h-9" 
+                  />
+                </Button>
+              </div>
             </form>
           </Form>
         </div>
@@ -203,26 +211,26 @@ export default function CheckoutPage() {
             <h3 className="text-lg font-semibold mb-4">Ваше замовлення</h3>
 
             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
-                {products.map((product) => {
-                  const cartItem = cartItems.find((i) => i.id === product.id);
-                  if (!cartItem) return null;
-                  return (
-                      <div
-                          key={product.id}
-                          className="flex justify-between text-sm gap-3"
-                      >
-                          {/* Назва: перенос або "..." */}
-                          <span className="text-gray-700 flex-1 min-w-0 break-words line-clamp-2">
-                              {product.name} × {cartItem.quantity}
-                          </span>
+              {products.map((product) => {
+                const cartItem = cartItems.find((i) => i.id === product.id);
+                if (!cartItem) return null;
+                return (
+                  <div
+                    key={product.id}
+                    className="flex justify-between text-sm gap-3"
+                  >
 
-                          {/* Ціна: не стискається */}
-                          <span className="font-medium whitespace-nowrap">
-                              {(product.price * cartItem.quantity).toLocaleString("uk-UA")} ₴
-                          </span>
-                      </div>
-                    );
-                })}
+                    <span className="text-gray-700 flex-1 min-w-0 break-words line-clamp-2">
+                      {product.name} × {cartItem.quantity}
+                    </span>
+
+                    {/* Ціна: не стискається */}
+                    <span className="font-medium whitespace-nowrap">
+                      {(product.price * cartItem.quantity).toLocaleString("uk-UA")} ₴
+                    </span>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="border-t border-gray-300 mt-4 pt-4 flex justify-between font-semibold text-lg">

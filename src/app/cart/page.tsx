@@ -53,6 +53,7 @@ export default function Page() {
               key={item.id}
               item={item}
               quantity={cartItem?.quantity || 0}
+              maxStock={item.stock || 0}
             />
           );
         })}

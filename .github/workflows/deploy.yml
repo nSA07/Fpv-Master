@@ -1,0 +1,69 @@
+# .github/workflows/deploy.yml
+name: Next.js Docker Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }} 
+  CONTAINER_PORT: 3000 # Порт, який Next.js слухає всередині Dockerfile
+  HOST_PORT: 8080      # Порт, який буде відкрито на VPS
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔐 Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }} 
+
+      - name: 🏗️ Build and Push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      
+      - name: 📤 Deploy to VPS and Run Container
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            APP_NAME="next-shop-app"
+            IMAGE_URL="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+            
+            echo "--- Запуск деплою на VPS ---"
+            
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+            
+            echo "Завантаження образу: $IMAGE_URL"
+            docker pull $IMAGE_URL
+
+            if docker ps -a | grep -q $APP_NAME; then
+                echo "Зупинка та видалення старого контейнера..."
+                docker stop $APP_NAME
+                docker rm $APP_NAME
+            fi
+            
+            docker run -d \
+                --name $APP_NAME \
+                -p ${{ env.HOST_PORT }}:${{ env.CONTAINER_PORT }} \
+                --restart unless-stopped \
+                $IMAGE_URL
+            docker system prune -f
+            
+            echo "--- Деплой успішно завершено! ---"

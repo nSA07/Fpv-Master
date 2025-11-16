@@ -43,7 +43,7 @@ export const HoverCardCategory: React.FC<HoverCardCategoryProps> = ({categories}
             categories.map((cat) => (
               <Link
                 key={cat.id}
-                href={`/${cat.id}`}
+                href={`/${cat.slug}`}
                 className="block text-sm py-1 px-2 rounded hover:bg-gray-100 transition"
               >
                 {cat.name}

@@ -34,7 +34,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
         
         if (catProducts.length === 0) return null;
         return (
-          <div key={category.id} className="flex flex-col py-9 gap-2">
+          <div key={category.id} className="flex flex-col gap-2">
             <Carousel opts={{ align: "start" }}>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 pt-4 pb-4 sm:pb-8 relative">
                 {/* Заголовок */}
@@ -44,7 +44,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
 
                 {/* Мобільний лінк "переглянути всі" */}
                 <Link
-                  href={`/${category.id}`}
+                  href={`/${category.slug}`}
                   className="text-sm/tight flex items-center font-semibold uppercase underline mt-2 sm:hidden"
                 >
                   переглянути всі
@@ -55,7 +55,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
                 <div className="flex items-end xl:items-center gap-1 sm:gap-4 sm:ml-auto flex-col-reverse sm:flex-row">
                   {/* Десктопний лінк */}
                   <Link
-                    href={`/${category.id}`}
+                    href={`/${category.slug}`}
                     className="text-sm/tight items-center font-semibold uppercase underline hidden sm:flex"
                   >
                     переглянути всі
