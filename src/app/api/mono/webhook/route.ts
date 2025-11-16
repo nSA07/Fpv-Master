@@ -6,7 +6,7 @@ const DIRECTUS_URL = process.env.DIRECTUS_URL!;
 const DIRECTUS_TOKEN = process.env.DIRECTUS_TOKEN!;
 const RESEND_API_KEY = process.env.RESEND_API_KEY!; 
 const CLIENT_ORDER_URL_BASE = process.env.CLIENT_ORDER_URL_BASE!;
-const MONOBANK_PUBKEY = process.env.MONO_TOKEN!;
+const MONOBANK_PUBKEY = process.env.MONOBANK_PUBKEY!;
 
 // Ініціалізація Resend
 const resend = new Resend(RESEND_API_KEY);
