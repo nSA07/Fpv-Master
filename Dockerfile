@@ -17,7 +17,6 @@ ENV RESEND_API_KEY=${RESEND_API_KEY}
 
 RUN pnpm build
 
-# ========== Runner =============
 FROM node:20-alpine AS runner
 WORKDIR /app
 
