@@ -6,6 +6,7 @@ import { HoverCardCategory } from "./hover-card-category";
 import { getCategories } from "@/lib/directus";
 import { MobileMenu } from "./mobile-menu";
 import { CartIcon } from "./cart";
+import { Logo } from "../shared/logo";
 
 export const Header: React.FC = async () => {
   const categories: Category[] = await getCategories();
@@ -13,11 +14,13 @@ export const Header: React.FC = async () => {
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-sm flex justify-center items-center border-b border-gray-200">
       
-      <nav className="relative flex justify-between items-center text-base w-full container px-4 sm:px-8 py-4">
+      <nav className="relative flex justify-between items-center text-base w-full container px-4 sm:px-8 py-3">
         
         <div className="flex">
           <Link href="/" className="flex gap-1 items-center text-2xl font-extrabold text-gray-900">
-            <Image src="/logo.png" alt="Logo" width={140} height={45} />
+            <Logo
+              className="text-2xl"
+            />
           </Link>
         </div>
 

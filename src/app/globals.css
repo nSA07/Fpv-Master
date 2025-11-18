@@ -121,3 +121,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+.logo-dark-brutal{
+  font-size:46px;
+  font-family:Rubik;
+  font-weight:900;
+  color:#000;
+  background:#ffffff;
+  padding:4px 12px;
+  border:3px solid #000;
+}
