@@ -134,7 +134,7 @@ export default async function Page({ params }: { params: Promise<{ categorySlug:
           lg:col-span-6 
           flex flex-col 
           gap-4 
-          bg-white/50 
+          bg-white 
           p-4 
           rounded-xl"
         >
@@ -157,7 +157,7 @@ export default async function Page({ params }: { params: Promise<{ categorySlug:
 
           <QuantitySelector product={product} disabled={isInactive} />
 
-          <div className="p-3 sm:p-4 rounded-lg bg-gray-50 text-sm flex flex-col gap-3 text-gray-700">
+          <div className="p-3 sm:p-4 rounded-lg bg-white text-sm flex flex-col gap-3 text-gray-700">
             <div>
               <h3 className="font-semibold text-gray-900">Оплата</h3>
               <p>

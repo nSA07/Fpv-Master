@@ -8,7 +8,7 @@ interface Props {
 export const Logo: React.FC<Props> = ({ className }) => {
   return (
     <div className={cn(
-        'font-black text-black bg-white p-1 px-3 border-4 border-black inline-block',
+        'font-black text-black bg-white p-1 px-3 border-2 border-black inline-block',
         className
       )}
     >

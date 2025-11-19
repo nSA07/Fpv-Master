@@ -7,9 +7,9 @@ import { Logo } from "./logo";
 export const Footer: React.FC = () => {
   // Посилання для навігації в нижньому колонтитулі
   const footerLinks = [
-    { title: "Повернення товару", href: "/return-policy" },
-    { title: "Політика конфіденційності", href: "/privacy-policy" },
-    { title: "Публічна оферта", href: "/public-offer" },
+    // { title: "Повернення товару", href: "/return-policy" },
+    // { title: "Політика конфіденційності", href: "/privacy-policy" },
+    // { title: "Публічна оферта", href: "/public-offer" },
     { title: "Доставка і оплата", href: "/dostavka-i-oplata" },
     { title: "Контакти", href: "/contacts" },
   ];
@@ -31,15 +31,9 @@ export const Footer: React.FC = () => {
 
           {/* == Колонка 2: Віджет Prom.ua == */}
           <div className="flex flex-col">
-            <h4 className="text-lg font-semibold mb-2 text-gray-700">Наші відгуки</h4>
-            {/*
-              УВАГА: Тут має бути код вбудовування віджету Prom.ua.
-              Його не можна відтворити чистим CSS, тому я залишаю заглушку.
-            */}
+            {/* <h4 className="text-lg font-semibold mb-2 text-gray-700">Наші відгуки</h4>
             <div className="w-full h-24 bg-gray-100 border border-gray-300 flex items-center justify-center text-sm text-gray-500 rounded-md p-2">
-              [Місце для віджета Prom.ua з відгуками]
-              {/* Приклад: <iframe src="URL_ВАШОГО_ВІДЖЕТА" width="..." height="..."></iframe> */}
-            </div>
+            </div> */}
           </div>
 
           {/* == Колонка 3: Telegram Блог == */}
