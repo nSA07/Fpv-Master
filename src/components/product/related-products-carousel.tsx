@@ -43,12 +43,12 @@ export const RelatedProductsCarousel = ({ products }: RelatedProductsCarouselPro
                 >
                   <div className="bg-white rounded-lg overflow-hidden transition p-3 h-full flex flex-col">
 
-                    <div className="aspect-square flex items-center justify-center rounded-md mb-3">
+                    <div className="flex items-center justify-center rounded-md mb-3 h-50 max-h-50 overflow-hidden">
                       {p.images ? (
                         <img
                           src={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${p.images[0]?.directus_files_id}`}
                           alt={p.name}
-                          className="object-contain h-full w-full"
+                          className="object-contain h-full w-auto"
                         />
                       ) : (
                         <div className="text-gray-400">Без фото</div>

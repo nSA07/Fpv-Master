@@ -43,26 +43,34 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, name }) 
   return (
     <div className="w-full flex flex-col md:flex-row gap-3 md:gap-4">
       {/* 🔹 Превʼюшки зліва (desktop) */}
-      <div className="hidden p-1 md:flex scrollb flex-col gap-3 overflow-y-auto max-h-full">
-        {images.map((img, idx) => (
-          <button
-            key={idx}
-            onClick={() => setSelected(idx)}
-            className={`rounded-md overflow-hidden cursor-pointer w-20 h-20 bg-white flex-shrink-0 border transition-all ${
-              selected === idx ? "border-gray-500 scale-105" : "border-transparent"
-            }`}
-          >
-            <img
-              src={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${img}`}
-              alt={`${name}-thumb-${idx}`}
-              className="object-contain w-full h-full"
-            />
-          </button>
-        ))}
+      <div className="hidden md:flex scrollbar-hide flex-col gap-3 overflow-y-auto h-[400px] md:h-[420px] lg:h-[470px]">
+        <Carousel
+          opts={{ loop: true }}
+          orientation="vertical"
+        >
+          <CarouselContent>
+            {images.map((img, idx) => (
+              <CarouselItem key={idx}>
+                <button
+                  onClick={() => setSelected(idx)}
+                  className={`rounded-md m-1 overflow-hidden cursor-pointer w-22 h-22 flex-shrink-0 border transition-all ${
+                    selected === idx ? "border-black" : "border-gray-200"
+                  }`}
+                >
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${img}`}
+                    alt={`${name}-thumb-${idx}`}
+                    className="object-contain w-full h-full"
+                  />
+                </button>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
       </div>
 
       {/* 🔸 Основне фото з каруселлю */}
-      <div className="relative flex-1 bg-white rounded-lg overflow-hidden">
+      <div className="relative flex-1 rounded-lg overflow-hidden">
         <Carousel
           className="w-full h-[400px] md:h-[420px] lg:h-[470px]"
           opts={{ loop: true }}
@@ -91,22 +99,30 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, name }) 
       </div>
 
       {/* 📱 Превʼюшки знизу (mobile) */}
-      <div className="flex md:hidden justify-center gap-2 mt-3 w-full p-1 overflow-x-auto">
-        {images.map((img, idx) => (
-          <button
-            key={idx}
-            onClick={() => setSelected(idx)}
-            className={`rounded-md overflow-hidden cursor-pointer w-16 h-16 border transition-all ${
-              selected === idx ? "border-gray-500 scale-105" : "border-transparent"
-            }`}
-          >
-            <img
-              src={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${img}`}
-              alt={`${name}-mobile-thumb-${idx}`}
-              className="object-contain w-full h-full"
-            />
-          </button>
-        ))}
+      <div className="md:hidden flex scrollbar-hide flex-col gap-3 overflow-y-auto ">
+        <Carousel
+          opts={{ loop: true, align: "start" }}
+        >
+          <CarouselContent>
+            {images.map((img, idx) => (
+              <CarouselItem key={idx} className="basis-auto w-auto">
+                <button
+                  key={idx}
+                  onClick={() => setSelected(idx)}
+                  className={`rounded-md m-1 overflow-hidden cursor-pointer w-16 h-16 border transition-all ${
+                    selected === idx ? "border-black scale-105" : "border-gray-500"
+                  }`}
+                >
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${img}`}
+                    alt={`${name}-mobile-thumb-${idx}`}
+                    className="object-contain w-full h-full"
+                  />
+                </button>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
       </div>
     </div>
   );

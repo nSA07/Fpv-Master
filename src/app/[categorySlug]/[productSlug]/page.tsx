@@ -112,9 +112,14 @@ export default async function Page({ params }: { params: Promise<{ categorySlug:
   }
   
   return (
-    <div className="flex flex-col gap-9">
-      <div className="grid grid-cols-12 gap-6 xl:gap-8 xl:mb-8 items-start">
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-12 gap-6 items-start">
         <div className={`
+            w-full
+            h-full
+            p-2
+            bg-white 
+            rounded-xl
             col-span-12 
             md:col-span-8 md:col-start-3 
             lg:col-span-6 lg:col-start-auto 
