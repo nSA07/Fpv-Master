@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 export const CartItem = ({
   item,
   quantity,
-  maxStock, // <--- НОВИЙ PROP: Передаємо залишок зі складу
+  maxStock,
 }: {
   item: any;
   quantity: number;
@@ -27,10 +27,7 @@ export const CartItem = ({
 
   const handleDecrease = () => {
     if (quantity > 1) {
-      // Використовуємо -1 для зменшення
       addItem(item.id, -1);
-    } else {
-      removeItem(item.id);
     }
   };
 
@@ -124,7 +121,7 @@ export const CartItem = ({
               size="icon" 
               className="h-8 w-8" 
               onClick={handleDecrease}
-              disabled={quantity <= 0} // Кнопка мінус вимкнена, якщо кількість 0 (хоча вона не має бути 0)
+              disabled={quantity <= 1}
             >
               −
             </Button>

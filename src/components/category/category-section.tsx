@@ -24,7 +24,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
   }
   
   return (
-    <section className="mb-10">
+    <section className="mb-10 flex flex-col gap-4 md:gap-8">
       {categories.map((category) => {
         const catProducts = products.filter(
           (p) => category.children_subcategory
