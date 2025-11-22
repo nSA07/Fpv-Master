@@ -1,11 +1,21 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
-// Базовий URL вашого Directus
-const DIRECTUS_URL = process.env.DIRECTUS_URL;
+// 💡 Визначення типу для контексту маршруту
+// Цей тип має бути більш сумісним з очікуваннями Next.js
+interface RouteContext {
+  params: {
+    id: string;
+  };
+}
 
+const DIRECTUS_URL = process.env.NEXT_PUBLIC_DIRECTUS_URL;
+
+/**
+ * Обробник GET-запиту для проксі-завантаження зображення з Directus
+ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteContext // ✅ Використовуємо інтерфейс для контексту
 ) {
   const fileId = params.id;
 
@@ -16,24 +26,19 @@ export async function GET(
   const directusFileUrl = `${DIRECTUS_URL}/assets/${fileId}`;
 
   try {
-    // 1. Next.js робить запит до Directus на сервері
     const response = await fetch(directusFileUrl);
 
     if (!response.ok) {
-      // Якщо Directus не віддав файл
       return new NextResponse('File not found in Directus', { status: 404 });
     }
 
-    // 2. Отримуємо вміст файлу та тип контенту
     const contentType = response.headers.get('content-type') || 'image/jpeg';
     const imageBlob = await response.blob();
     
-    // 3. Next.js віддає файл клієнту (Googlebot'у)
     return new NextResponse(imageBlob, {
       status: 200,
       headers: {
         'Content-Type': contentType,
-        // Обов'язково для кешування та швидкості:
         'Cache-Control': 'public, max-age=31536000, immutable', 
       },
     });
