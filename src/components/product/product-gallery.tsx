@@ -114,7 +114,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, name }) 
                   }`}
                 >
                   <img
-                    src={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${img}`}
+                    src={`${process.env.NEXT_PUBLIC_ASSETS_URL}/api/assets/${img}`}
                     alt={`${name}-mobile-thumb-${idx}`}
                     className="object-contain w-full h-full"
                   />

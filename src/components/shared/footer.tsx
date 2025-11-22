@@ -7,9 +7,9 @@ import { Logo } from "./logo";
 export const Footer: React.FC = () => {
   // Посилання для навігації в нижньому колонтитулі
   const footerLinks = [
-    // { title: "Повернення товару", href: "/return-policy" },
-    // { title: "Політика конфіденційності", href: "/privacy-policy" },
-    // { title: "Публічна оферта", href: "/public-offer" },
+    { title: "Повернення товару", href: "/return-policy" },
+    { title: "Політика конфіденційності", href: "/privacy-policy" },
+    { title: "Публічна оферта", href: "/public-offer" },
     { title: "Доставка і оплата", href: "/dostavka-i-oplata" },
     { title: "Контакти", href: "/contacts" },
   ];
