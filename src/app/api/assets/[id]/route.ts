@@ -2,10 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, context: any) {
+  const { params } = context;
   const fileId = params.id;
 
   if (!fileId) {
@@ -21,19 +19,15 @@ export async function GET(
       return new NextResponse('File not found in Directus', { status: 404 });
     }
 
-    const contentType = response.headers.get('content-type') ?? 'application/octet-stream';
-    const contentLength = response.headers.get('content-length') ?? undefined;
-
     return new NextResponse(response.body, {
       status: 200,
       headers: {
-        'Content-Type': contentType,
-        ...(contentLength ? { 'Content-Length': contentLength } : {}),
-        'Cache-Control': 'public, max-age=31536000, immutable'
-      }
+        'Content-Type': response.headers.get('content-type') ?? 'application/octet-stream',
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
     });
   } catch (error) {
-    console.error('Directus proxy error:', error);
+    console.error(error);
     return new NextResponse('Internal server error', { status: 500 });
   }
 }
