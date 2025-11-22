@@ -63,7 +63,7 @@ const getStatusStyles = (status: string) => {
             break;
 
         // НАКЛАДЕНИЙ ПЛАТІЖ / ВІДПРАВЛЕНО - СИНІЙ
-        case 'cash_on_delivery':
+        case 'pay_on_delivery':
             text = '💵 Накладений платіж';
             textClass = 'text-blue-800'; // Темно-синій текст
             borderClass = 'border-blue-500'; // Синя ліва межа

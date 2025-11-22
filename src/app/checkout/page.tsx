@@ -39,6 +39,7 @@ const checkoutSchema = z.object({
     label: z.string(),
     ref: z.string()
   }, "Оберіть відділення"),
+  paymentMethod: z.enum(["mono", "cod"]),
 });
 
 export type CheckoutFormValues = z.infer<typeof checkoutSchema>;
@@ -63,12 +64,13 @@ export default function CheckoutPage() {
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
-    firstName: "",
-    lastName: "",
-    middleName: "",
+      firstName: "",
+      lastName: "",
+      middleName: "",
       email: "",
       phone: "",
       comment: "",
+      paymentMethod: "mono",
     },
   });
 
@@ -188,7 +190,15 @@ export default function CheckoutPage() {
                 )}
               />
               <NovaPoshtaSelect form={form} />
-              <div className="flex justify-end">
+              <div className="flex flex-col lg:flex-row gap-2 justify-end">
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="px-5 py-5 cursor-pointer rounded-lg border border-gray-400"
+                  onClick={() => form.setValue("paymentMethod", "cod")}
+                >
+                  Оплата при отриманні
+                </Button>
                 <Button
                   type="submit"
                   className="px-5 py-5 cursor-pointer rounded-lg"

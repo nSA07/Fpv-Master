@@ -72,6 +72,6 @@ interface OrderPayload {
   warehouse: string;
   warehouse_ref: string;
   products: any[];
-  payment_status: "pending" | "paid" | "failed";
+  payment_status: "pending" | "paid" | "failed" | "pay_on_delivery";
   shipping_status: "not_shipped" | "shipped" | "delivered";
 }

@@ -24,7 +24,8 @@ export async function submitCheckout(data: CheckoutFormValues, products: Product
             products, 
             cartItems, 
             orderId: orderIdLocal,
-            directusOrderId: directusOrderId
+            directusOrderId: directusOrderId,
+            paymentMethod: data.paymentMethod,
         }),
     });
 
@@ -32,7 +33,22 @@ export async function submitCheckout(data: CheckoutFormValues, products: Product
 
     if (result.pageUrl) {
         window.location.href = result.pageUrl;
-    } else {
-        toast.error(result.error || "Помилка створення оплати");
+        return;
     }
+    if (result.success) {
+        const orderUrl = `https://www.fpvmaster.com.ua/order-status?order=${orderIdLocal}`;
+
+        toast("Замовлення створено!", {
+            description: "Ми вже працюємо над його відправкою 😊",
+            action: {
+                label: "Переглянути",
+                onClick: () => window.open(orderUrl, "_blank"),
+            },
+        });
+
+        cartStore.resetCartState();
+        return;
+    }
+
+    toast.error(result.error || "Помилка при створенні замовлення");
 }

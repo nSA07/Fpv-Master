@@ -7,12 +7,18 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json();
-        const { customer, products, cartItems, orderId, directusOrderId } = body; 
+        const {
+            customer,
+            products,
+            cartItems,
+            orderId,
+            directusOrderId,
+            paymentMethod
+        } = body;
         
         let directusIdToUse = directusOrderId; 
         let directusRes;
         
-        // 1️⃣ Формуємо дані для Directus
         const orderData: OrderPayload = {
             local_order_id: orderId, // Ваш локальний ID
             customer_name: `${customer.lastName} ${customer.firstName} ${customer.middleName}`,
@@ -34,32 +40,36 @@ export async function POST(req: Request) {
                     subtotal: product ? product.price * i.quantity : 0,
                 };
             }),
-            payment_status: "pending",
+            payment_status:  paymentMethod === "cod"
+                ? "pay_on_delivery"
+                : "pending",
             shipping_status: "not_shipped",
         };
-        // 2️⃣ СТВОРЕННЯ чи ОНОВЛЕННЯ?
+        
         if (directusOrderId) {
             // ОНОВЛЕННЯ (якщо Directus ID вже існує)
             // Примітка: Ви можете передавати оновлені дані напряму без updateOrder, використовуючи fetch з методом PATCH
             directusRes = await updateOrder(directusOrderId, orderData); // Або ваш PATCH-запит
         } else {
-            // СТВОРЕННЯ (якщо це нове замовлення)
             directusRes = await createOrder(orderData); // Ваш існуючий код
             
             directusIdToUse = directusRes.data.id;
         }
 
         if (!directusRes || directusRes.errors) {
-            // Обробка помилки Directus
             return new Response(JSON.stringify({ error: `Directus error...` }), { status: 500 });
         }
         
-        // 3️⃣ Створення інвойсу Monobank (для Directus ID)
-        const payload = buildMonoPayload(products, cartItems, directusIdToUse);
-        const monoData = await createMonoInvoice(payload);
+        if (paymentMethod === "mono") {
+            const payload = buildMonoPayload(products, cartItems, directusIdToUse);
+            const monoData = await createMonoInvoice(payload);
 
-        // 4️⃣ Повертаємо URL для редіректу
-        return new Response(JSON.stringify({ pageUrl: monoData.pageUrl }));
+            return new Response(JSON.stringify({ pageUrl: monoData.pageUrl }));
+        }
+
+        if (paymentMethod === "cod") {
+            return new Response(JSON.stringify({ success: true }));
+        }
 
     } catch (err) {
         console.error("Checkout error:", err);

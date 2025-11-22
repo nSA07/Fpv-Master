@@ -92,7 +92,7 @@ export default function RootLayout({
           </main>
           <Footer />
         </div>
-        <Toaster />
+        <Toaster richColors />
         <GoogleAnalytics gaId={GA_MEASUREMENT_ID ?? ''} />
       </body>
     </html>
