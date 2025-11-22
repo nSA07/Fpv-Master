@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ categoryS
       description: "На жаль, товар не знайдено або більше не доступний.",
     };
   }
-
+  
   const baseUrl = process.env.NEXT_PUBLIC_ASSETS_URL;
   const baseUrlImages = process.env.NEXT_PUBLIC_DIRECTUS_URL || baseUrl;
   const productUrl = `${baseUrl}/${categorySlug}/${product.slug}`;
