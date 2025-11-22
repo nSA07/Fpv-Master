@@ -1,29 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
-
-// 💡 Визначення типу для контексту маршруту
-// Цей тип має бути більш сумісним з очікуваннями Next.js
-interface RouteContext {
-  params: {
-    id: string;
-  };
-}
+import { NextResponse } from 'next/server';
 
 const DIRECTUS_URL = process.env.NEXT_PUBLIC_DIRECTUS_URL;
+export async function GET({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
 
-/**
- * Обробник GET-запиту для проксі-завантаження зображення з Directus
- */
-export async function GET(
-  request: NextRequest,
-  { params }: RouteContext // ✅ Використовуємо інтерфейс для контексту
-) {
-  const fileId = params.id;
-
-  if (!fileId) {
+  if (!id) {
     return new NextResponse('File ID missing', { status: 400 });
   }
 
-  const directusFileUrl = `${DIRECTUS_URL}/assets/${fileId}`;
+  const directusFileUrl = `${DIRECTUS_URL}/assets/${id}`;
 
   try {
     const response = await fetch(directusFileUrl);
