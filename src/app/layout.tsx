@@ -6,7 +6,7 @@ import { Container } from "@/components/shared/container";
 import { Footer } from "@/components/shared/footer";
 import { OrderStatusChecker } from "@/components/shared/order-status-checker";
 import { Toaster } from "@/components/ui/sonner"
-import { GoogleTagManager } from '@next/third-parties/google'
+import { GoogleAnalytics } from '@next/third-parties/google'
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID;
 const poppins = Poppins({
   subsets: ['latin'],
@@ -93,7 +93,7 @@ export default function RootLayout({
           <Footer />
         </div>
         <Toaster richColors />
-        <GoogleTagManager gtmId={GA_MEASUREMENT_ID ?? ''} />
+        <GoogleAnalytics gaId={GA_MEASUREMENT_ID ?? ''} />
       </body>
     </html>
   );
