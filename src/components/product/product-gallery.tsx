@@ -58,7 +58,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, name }) 
                   }`}
                 >
                   <img
-                    src={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${img}`}
+                    src={`${process.env.NEXT_PUBLIC_ASSETS_URL}/api/assets/${img}`}
                     alt={`${name}-thumb-${idx}`}
                     className="object-contain w-full h-full"
                   />
@@ -81,7 +81,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, name }) 
               <CarouselItem key={idx}>
                 <div className="flex justify-center items-center w-full  h-[400px] md:h-[420px] lg:h-[470px]">
                   <img
-                    src={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${img}`}
+                    src={`${process.env.NEXT_PUBLIC_ASSETS_URL}/api/assets/${img}`}
                     alt={`${name}-${idx}`}
                     className="object-contain w-full h-full transition-transform duration-300"
                   />
