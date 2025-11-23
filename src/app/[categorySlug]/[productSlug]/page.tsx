@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ categoryS
 
   // OG / Twitter image
   const image = product.images?.length
-    ? `${baseUrl}/api/assets/${product.images[0].directus_files_id}`
+    ? `${baseUrlImages}/assets/${product.images[0].directus_files_id.filename_disk}`
     : `${baseUrl}/og-default.jpg`;
 
   // Availability
@@ -130,7 +130,7 @@ export default async function Page({ params }: { params: Promise<{ categorySlug:
           `}
         >
           <ProductGallery
-            images={product.images.map((img) => img.directus_files_id)}
+            images={product.images.map((img) => img.directus_files_id.filename_disk)}
             name={product.name}
           />
         </div>

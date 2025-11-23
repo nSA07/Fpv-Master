@@ -9,14 +9,13 @@ import { PriceMiniDisplay } from "./price-display";
 
 
 export const ProductCard = ({ product }: { product: Product }) => {
-  
   return (
     <div className="flex h-full flex-col w-full mx-auto bg-white rounded-lg p-4">
       <div className="flex items-center justify-center mb-4 h-76 w-full rounded-lg overflow-hidden">
         {product.images?.length > 0 ? (
           <Link href={`/${product.subcategories.category.slug}/${product.slug}`} className="w-full h-full">
             <img
-              src={`${process.env.NEXT_PUBLIC_ASSETS_URL}/api/assets/${product.images[0].directus_files_id}`}
+              src={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${product.images[0].directus_files_id.filename_disk}`}
               alt={product.name}
               className="w-full h-full object-contain"
             />

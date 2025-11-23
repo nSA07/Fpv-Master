@@ -3,7 +3,7 @@ interface Product {
   slug: string;
   active: boolean;
   name: string;
-  images: { directus_files_id: string }[];
+  images: ProductImage[];
   price: number;
   price_old?: number | null;
   stock: number;
@@ -16,6 +16,12 @@ interface Product {
 
   brand: string;
   subcategories: Subcategory;
+}
+
+interface ProductImage {
+  directus_files_id: {
+    filename_disk: string;
+  }
 }
 
 interface ProductAttribute {

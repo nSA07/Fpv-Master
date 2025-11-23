@@ -84,7 +84,7 @@ export async function getOneCategory(slug: string) {
 export async function getProducts(onlyDiscounted?: boolean) {
   const params = new URLSearchParams({
     "filter[active][_eq]": "true",
-    fields: "id,slug,active,name,description,price,price_old,sku,brand,stock,images.directus_files_id,features,product_attributes,subcategories.id,subcategories.slug,subcategories.active,subcategories.name,subcategories.category.id, subcategories.category.slug",
+    fields: "id,slug,active,name,description,price,price_old,sku,brand,stock,images.directus_files_id.filename_disk,features,product_attributes,subcategories.id,subcategories.slug,subcategories.active,subcategories.name,subcategories.category.id, subcategories.category.slug",
   });
 
   if (onlyDiscounted) {
@@ -107,7 +107,7 @@ export async function getOneProduct(slug: string) {
       sku,
       brand,
       stock,
-      images.directus_files_id,
+      images.directus_files_id.filename_disk,
       features,
       equipment,
       producer,
@@ -140,7 +140,7 @@ export async function getProductsByCategorySlug(slug: string) {
       sku,
       brand,
       stock,
-      images.directus_files_id,
+      images.directus_files_id.filename_disk,
       features,
       equipment,
       producer,
