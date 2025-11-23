@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ categoryS
 
   // OG / Twitter image
   const image = product.images?.length
-    ? `${baseUrl}/assets/${product.images[0].directus_files_id}`
+    ? `${baseUrl}/api/assets/${product.images[0].directus_files_id}`
     : `${baseUrl}/og-default.jpg`;
 
   // Availability
