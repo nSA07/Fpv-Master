@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest, context: any) {
+
+export async function GET(request: NextRequest, context: any ) {
   const { params } = context;
   const fileId = params.id;
 
@@ -10,24 +11,26 @@ export async function GET(request: NextRequest, context: any) {
     return new NextResponse('File ID missing', { status: 400 });
   }
 
-  const directusFileUrl = `${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${fileId}`;
+  const directusUrl = `${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${fileId}`;
 
   try {
-    const response = await fetch(directusFileUrl);
+    const directusResponse = await fetch(directusUrl);
 
-    if (!response.ok) {
-      return new NextResponse('File not found in Directus', { status: 404 });
+    if (!directusResponse.ok) {
+      return new NextResponse('File not found', { status: 404 });
     }
 
-    return new NextResponse(response.body, {
+    const headers = new Headers(directusResponse.headers);
+
+    headers.set("Cache-Control", "public, max-age=31536000, immutable");
+
+    return new NextResponse(directusResponse.body, {
       status: 200,
-      headers: {
-        'Content-Type': response.headers.get('content-type') ?? 'application/octet-stream',
-        'Cache-Control': 'public, max-age=31536000, immutable',
-      },
+      headers,
     });
-  } catch (error) {
-    console.error(error);
-    return new NextResponse('Internal server error', { status: 500 });
+
+  } catch (err) {
+    console.error(err);
+    return new NextResponse('Server error', { status: 500 });
   }
 }
