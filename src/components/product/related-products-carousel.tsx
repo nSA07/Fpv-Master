@@ -46,7 +46,7 @@ export const RelatedProductsCarousel = ({ products }: RelatedProductsCarouselPro
                     <div className="flex items-center justify-center rounded-md mb-3 h-50 max-h-50 overflow-hidden">
                       {p.images ? (
                         <img
-                          src={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${p.images[0]?.directus_files_id}`}
+                          src={`/api/assets/${p.images[0]?.directus_files_id.filename_disk}`}
                           alt={p.name}
                           className="object-contain h-full w-auto"
                         />

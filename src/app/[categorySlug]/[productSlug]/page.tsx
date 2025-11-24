@@ -17,7 +17,6 @@ export async function generateMetadata({ params }: { params: Promise<{ categoryS
   }
   
   const baseUrl = process.env.NEXT_PUBLIC_ASSETS_URL;
-  const baseUrlImages = process.env.NEXT_PUBLIC_DIRECTUS_URL || baseUrl;
   const productUrl = `${baseUrl}/${categorySlug}/${product.slug}`;
 
   // Title
@@ -33,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ categoryS
 
   // OG / Twitter image
   const image = product.images?.length
-    ? `${baseUrlImages}/assets/${product.images[0].directus_files_id.filename_disk}`
+    ? `${baseUrl}/api/assets/${product.images[0].directus_files_id.filename_disk}`
     : `${baseUrl}/og-default.jpg`;
 
   // Availability
