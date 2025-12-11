@@ -25,6 +25,7 @@ interface DirectusOrder {
     city: string;
     warehouse: string;
     date_created?: string;
+    waybill_number?: string;
 }
 
 // -------------------------------------------------------------------
@@ -126,7 +127,7 @@ export default async function Home({
             </main>
         );
     }
-
+    
     // --- ДЕТАЛІ ДЛЯ ВЕРСТКИ ---
     const paymentStatus = getStatusStyles(orderDetails.payment_status);
     const shippingStatus = getStatusStyles(orderDetails.shipping_status);
@@ -182,6 +183,11 @@ export default async function Home({
                             <p className={`text-xl font-bold ${shippingStatus.textClass}`}>
                                 {shippingStatus.text}
                             </p>
+                            {orderDetails.waybill_number && (
+                                <p className="mt-2 text-sm text-gray-700">
+                                    ТТН: <span className="font-mono">{orderDetails.waybill_number}</span>
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>
