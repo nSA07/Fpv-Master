@@ -155,10 +155,18 @@ export default async function Page({ params }: { params: Promise<{ categorySlug:
 
           <p
             className={`text-sm sm:text-base font-medium ${
-              product.stock > 0 ? "text-green-600" : "text-red-500"
+              product.stock > 0
+                ? "text-green-600"
+                : product.stock < 0
+                ? "text-yellow-600"
+                : "text-red-500"
             }`}
           >
-            {product.stock > 0 ? "Є в наявності" : "Немає в наявності"}
+            {product.stock > 0
+              ? "Є в наявності"
+              : product.stock < 0
+              ? "Тільки під замовлення"
+              : "Немає в наявності"}
           </p>
 
           <QuantitySelector product={product} disabled={isInactive} />
