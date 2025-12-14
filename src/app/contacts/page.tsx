@@ -5,7 +5,7 @@ const contactData = {
   owner_info: "ФОП Хоменко Альона Василівна",
   phone_1: "+380 (93) 440-92-44",
   phone_2: "+380 (66) 308-52-82",
-  email: "alonakhomenko1@gmail.com",
+  email: "fpvmaster8@gmail.com",
   address: "Софіївська Борщагівка, Київська область, Україна",
   schedule_text: "Пн–Нд: 08:00 – 20:00"
 };
