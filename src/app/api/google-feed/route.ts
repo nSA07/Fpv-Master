@@ -59,8 +59,8 @@ export async function GET() {
             <g:description><![CDATA[${
               p.description && p.description.length > 20 ? p.description : p.name
             }]]></g:description>
-            <g:link>https://www.fpvmaster.com.ua/${categorySlug}/${p.slug}</g:link>
-            <g:image_link>https://www.fpvmaster.com.ua/api/assets/${p.images[0].directus_files_id.filename_disk}</g:image_link>
+            <g:link>https://fpvmaster.com.ua/${categorySlug}/${p.slug}</g:link>
+            <g:image_link>https://fpvmaster.com.ua/api/assets/${p.images[0].directus_files_id.filename_disk}</g:image_link>
             <g:availability>${p.stock > 0 ? "in_stock" : "out_of_stock"}</g:availability>
             <g:price>${price} UAH</g:price>
             <g:brand><![CDATA[${p.brand ?? "No brand"}]]></g:brand>
