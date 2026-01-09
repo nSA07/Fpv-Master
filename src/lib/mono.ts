@@ -1,3 +1,5 @@
+import * as crypto from 'crypto';
+
 export function buildMonoPayload(
   products: CartProduct[],
   cartItems: CartItem[],
@@ -45,9 +47,7 @@ export function buildMonoPayload(
   };
 }
 
-// Функція createMonoInvoice залишається без змін:
 export async function createMonoInvoice(payload: any) {
-  // ... (Ваша оригінальна функція)
   const monoRes = await fetch("https://api.monobank.ua/api/merchant/invoice/create", {
     method: "POST",
     headers: {
@@ -63,4 +63,27 @@ export async function createMonoInvoice(payload: any) {
   }
 
   return monoRes.json();
+}
+
+export function verifyMonoBankSignature(
+  signatureBase64: string,
+  message: string,
+  pubKeyBase64: string
+): boolean {
+  try {
+    const signatureBuf = Buffer.from(signatureBase64, 'base64');
+
+    const fullPemKey = Buffer.from(pubKeyBase64, 'base64').toString(); 
+
+    const verify = crypto.createVerify('SHA256');
+
+    verify.update(message);
+    verify.end();
+
+    return verify.verify(fullPemKey, signatureBuf);
+
+  } catch (e) {
+    console.error("Помилка під час верифікації підпису MonoBank:", e);
+    return false;
+  }
 }

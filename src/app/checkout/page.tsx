@@ -49,6 +49,7 @@ export default function CheckoutPage() {
   const { items: cartItems } = useCartStore();
   const { products } = useCartProducts();
   const [hydrated, setHydrated] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setHydrated(true);
@@ -89,7 +90,15 @@ export default function CheckoutPage() {
   }, 0);
 
   const onSubmit = async (data: CheckoutFormValues) => {
-    await submitCheckout(data, products, cartItems);
+    try {
+      setIsSubmitting(true); // Починаємо завантаження
+      await submitCheckout(data, products, cartItems);
+    } catch (error) {
+      console.error("Submission error:", error);
+      // Якщо сталася помилка, Sonner (toast) зазвичай показує її всередині submitCheckout
+    } finally {
+      setIsSubmitting(false); // Завершуємо завантаження
+    }
   };
 
   return (
@@ -194,22 +203,30 @@ export default function CheckoutPage() {
                 <Button
                   type="submit"
                   variant="outline"
+                  disabled={isSubmitting} // Блокуємо
                   className="px-5 py-5 cursor-pointer rounded-lg border border-gray-400"
                   onClick={() => form.setValue("paymentMethod", "cod")}
                 >
-                  Оплата при отриманні
+                  {isSubmitting && form.getValues("paymentMethod") === "cod" ? "Обробка..." : "Оплата при отриманні"}
                 </Button>
+
                 <Button
                   type="submit"
-                  className="px-5 py-5 cursor-pointer rounded-lg"
+                  disabled={isSubmitting} // Блокуємо
+                  className="px-5 py-5 cursor-pointer rounded-lg relative overflow-hidden"
                   aria-label="Оформити замовлення через Mono"
+                  onClick={() => form.setValue("paymentMethod", "mono")}
                 >
-                  <img
-                    src="/monocheckout_logo_white.svg"
-                    alt="mono_logo"
-                    aria-hidden="true"
-                    className="w-60 h-9" 
-                  />
+                  {isSubmitting && form.getValues("paymentMethod") === "mono" ? (
+                    "Зачекайте..."
+                  ) : (
+                    <img
+                      src="/monocheckout_logo_white.svg"
+                      alt="mono_logo"
+                      aria-hidden="true"
+                      className="w-60 h-9" 
+                    />
+                  )}
                 </Button>
               </div>
             </form>

@@ -196,31 +196,42 @@ export async function createOrder(data: OrderPayload) {
 
 // --- 2. Оновлення існуючого замовлення (PATCH) ---
 export async function updateOrder(orderId: string | number, data: Partial<OrderPayload>) {
-    try {
-        // PATCH-запит напряму за ID Directus
-        const res = await fetch(`${API_URL}/items/orders/${orderId}`, {
-            method: "PATCH",
-            headers: {
-                Authorization: `Bearer ${API_TOKEN}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-            cache: "no-store",
-        });
+  try {
+    const res = await fetch(`${API_URL}/items/orders/${orderId}`, {
+      method: "PATCH",
+      headers: {
+          Authorization: `Bearer ${API_TOKEN}`,
+          "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+      cache: "no-store",
+    });
 
-        if (!res.ok) {
-            const error = await res.json();
-            console.error(`Directus PATCH error for ID ${orderId}:`, error);
-            return { errors: error.errors || [{ message: "Failed to update order" }] };
-        }
-        
-        const result = await res.json();
-        // Повертаємо оновлені дані
-        return { data: result.data };
-
-    } catch (error) {
-        console.error("Directus PATCH fetch error:", error);
-        return { errors: [{ message: "Network error during order update" }] };
+    if (!res.ok) {
+      const error = await res.json();
+      console.error(`Directus PATCH error for ID ${orderId}:`, error);
+      return { errors: error.errors || [{ message: "Failed to update order" }] };
     }
+      
+    const result = await res.json();
+    return { data: result.data };
+
+  } catch (error) {
+    console.error("Directus PATCH fetch error:", error);
+    return { errors: [{ message: "Network error during order update" }] };
+  }
 }
 
+export async function getAdminEmails() {
+  try {
+    const res = await fetch(`${API_URL}/users?filter[role][name][_eq]=Administrator&fields=email`, {
+      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      next: { revalidate: 0 }
+    });
+    const json = await res.json();
+    return json.data?.map((u: any) => u.email) || [];
+  } catch (err) {
+    console.error("Помилка отримання адмінів:", err);
+    return [];
+  }
+}
