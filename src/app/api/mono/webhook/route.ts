@@ -96,12 +96,17 @@ export async function POST(req: NextRequest) {
                 });
 
                 const adminEmails = await getAdminEmails();
-                if (adminEmails.length > 0) {
+                
+                if (adminEmails && adminEmails.length > 0) {
                     await resend.emails.send({
-                        from: 'system@info.fpvmaster.com.ua',
+                        from: 'FpvMaster <support@info.fpvmaster.com.ua>',
                         to: adminEmails,
-                        subject: `🚀 Нове замовлення №${directusOrderId}`,
-                        html: generateAdminOrderEmail(orderUrl, products, process.env.DIRECTUS_URL!)
+                        subject: `📦 НОВЕ ЗАМОВЛЕННЯ (Накладений платіж) №${localOrderId}`,
+                        html: generateAdminOrderEmail(
+                            directusResponse.data, 
+                            products, 
+                            process.env.DIRECTUS_URL!
+                        ),
                     });
                 }
 
