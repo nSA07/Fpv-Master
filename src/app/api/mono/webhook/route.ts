@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
         const directusResponse = await updateRes.json();
         const { local_order_id: localOrderId, email: customerEmail, products } = directusResponse.data;
 
-
+        
         if (newStatus === "paid") {
             
             await handleStockUpdate(products, DIRECTUS_URL, DIRECTUS_TOKEN, directusOrderId);

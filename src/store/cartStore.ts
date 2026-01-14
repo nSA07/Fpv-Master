@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { v4 as uuidv4 } from "uuid";
+import { customAlphabet } from "nanoid";
 
 type CartItem = {
   id: string;
@@ -13,17 +13,18 @@ type CartState = {
   addItem: (id: string, quantity?: number) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
-  resetCartState: () => void; // Нова назва: очищає кошик та генерує новий orderId
+  resetCartState: () => void;
 };
+
+const generateOrderId = customAlphabet("23456789ABCDEFGHJKLMNPQRSTUVWXYZ", 10);
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
-      orderId: uuidv4(), // Генерується лише 1 раз при ініціалізації або при reset
+      orderId: generateOrderId(),
       items: [],
 
       addItem: (id, quantity = 1) => {
-        // ... (логіка addItem без змін)
         const existing = get().items.find((item) => item.id === id);
         if (existing) {
             set({
@@ -43,8 +44,7 @@ export const useCartStore = create<CartState>()(
       clearCart: () => set({ items: [] }),
 
       resetCartState: () => {
-        // Викликається після успішної оплати або скасування
-        set({ items: [], orderId: uuidv4() }); // Скидаємо кошик і генеруємо НОВИЙ ID
+        set({ items: [], orderId: generateOrderId() });
       },
     }),
     {

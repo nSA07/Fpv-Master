@@ -13,6 +13,7 @@ interface EmailProps {
 }
 
 export function generateAdminOrderEmail(order: any, items: OrderItem[], directusUrl: string) {
+    
     const itemsHtml = items.map(item => {
         
         const imgUrl = `${directusUrl}/assets/${item.image_id[0].directus_files_id}?width=100&height=100&fit=cover`;
@@ -34,7 +35,7 @@ export function generateAdminOrderEmail(order: any, items: OrderItem[], directus
 
     return `
         <h1>🔔 Нове замовлення №${order.local_order_id}</h1>
-        <p><b>Клієнт:</b> ${order.first_name} ${order.last_name}</p>
+        <p><b>Клієнт:</b> ${order.customer_name}$</p>
         <p><b>Телефон:</b> ${order.phone}</p>
         <p><b>Email:</b> ${order.email}</p>
         <p><b>Доставка:</b> ${order.city}, ${order.warehouse}</p>
