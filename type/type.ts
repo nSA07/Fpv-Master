@@ -54,7 +54,7 @@ interface CategorySectionProps {
 interface CartProduct {
   id: string;
   name: string;
-  price: number; // у гривнях
+  price: number;
   sku: string;
   images: { directus_files_id: string }[];
   brand: string;
@@ -78,6 +78,6 @@ interface OrderPayload {
   warehouse: string;
   warehouse_ref: string;
   products: any[];
-  payment_status: "pending" | "paid" | "failed" | "pay_on_delivery";
+  payment_status: "pending" | "paid" | "failed" | "pay_on_delivery" | "awaiting_invoice_payment";
   shipping_status: "not_shipped" | "shipped" | "delivered";
 }

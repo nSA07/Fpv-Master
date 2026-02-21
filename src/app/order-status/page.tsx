@@ -19,7 +19,7 @@ interface DirectusOrder {
     customer_name: string;
     email: string;
     phone: string;
-    payment_status: 'paid' | 'pending' | 'failed' | 'cash_on_delivery';
+    payment_status: "pending" | "paid" | "failed" | "pay_on_delivery" | "awaiting_invoice_payment";
     shipping_status: 'not_shipped' | 'shipped' | 'delivered';
     amount: number;
     city: string;
@@ -69,6 +69,12 @@ const getStatusStyles = (status: string) => {
             textClass = 'text-blue-800'; // Темно-синій текст
             borderClass = 'border-blue-500'; // Синя ліва межа
             break;
+
+        case 'awaiting_invoice_payment':
+            text = '⏳ Оплата на рахунок';
+            textClass = 'text-purple-800';
+            borderClass = 'border-purple-500';
+        break;
             
         case 'shipped':
             text = '📦 Відправлено';

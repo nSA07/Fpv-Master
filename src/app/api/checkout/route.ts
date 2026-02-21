@@ -24,8 +24,15 @@ export async function POST(req: Request) {
         let directusIdToUse = directusOrderId; 
         let directusRes;
         
+        let paymentStatus: "pending" | "paid" | "failed" | "pay_on_delivery" | "awaiting_invoice_payment" = "pending";
+        if (paymentMethod === "cod") {
+            paymentStatus = "pay_on_delivery";
+        } else if (paymentMethod === "invoice") {
+            paymentStatus = "awaiting_invoice_payment";
+        }
+
         const orderData: OrderPayload = {
-            local_order_id: orderId, // Ваш локальний ID
+            local_order_id: orderId,
             customer_name: `${customer.lastName} ${customer.firstName} ${customer.middleName}`,
             email: customer.email,
             phone: customer.phone,
@@ -46,18 +53,13 @@ export async function POST(req: Request) {
                     image_id: product.images || null,
                 };
             }),
-            payment_status:  paymentMethod === "cod"
-                ? "pay_on_delivery"
-                : "pending",
+            payment_status: paymentStatus,
             shipping_status: "not_shipped",
         };
         
         if (directusOrderId) {
-            // ОНОВЛЕННЯ (якщо Directus ID вже існує)
-            // Примітка: Ви можете передавати оновлені дані напряму без updateOrder, використовуючи fetch з методом PATCH
-            directusRes = await updateOrder(directusOrderId, orderData); // Або ваш PATCH-запит
         } else {
-            directusRes = await createOrder(orderData); // Ваш існуючий код
+            directusRes = await createOrder(orderData);
             
             directusIdToUse = directusRes.data.id;
         }
@@ -72,17 +74,24 @@ export async function POST(req: Request) {
 
             return new Response(JSON.stringify({ pageUrl: monoData.pageUrl }));
         }
-        if (paymentMethod === "cod") {
+        if (paymentMethod === "cod" || paymentMethod === "invoice") {
             try {
                 const adminEmails = await getAdminEmails();
                 
                 if (adminEmails && adminEmails.length > 0) {
+                    const subjectEmoji = paymentMethod === "invoice" ? "📄 РАХУНОК" : "📦 НАКЛАДЕНИЙ";
+                    
                     await resend.emails.send({
                         from: 'FpvMaster <support@info.fpvmaster.com.ua>',
                         to: adminEmails,
-                        subject: `📦 НОВЕ ЗАМОВЛЕННЯ (Накладений платіж) №${orderId}`,
+                        subject: `${subjectEmoji} №${orderId}`,
                         html: generateAdminOrderEmail(
-                            { ...orderData, first_name: customer.firstName, last_name: customer.lastName }, 
+                            { 
+                                ...orderData, 
+                                first_name: customer.firstName, 
+                                last_name: customer.lastName,
+                                payment_method_label: paymentMethod === "invoice" ? "Оплата на рахунок" : "Накладений платіж"
+                            }, 
                             orderData.products, 
                             process.env.DIRECTUS_URL!
                         ),

@@ -15,7 +15,6 @@ interface EmailProps {
 export function generateAdminOrderEmail(order: any, items: OrderItem[], directusUrl: string) {
     
     const itemsHtml = items.map(item => {
-        
         const imgUrl = `${directusUrl}/assets/${item.image_id[0].directus_files_id}?width=100&height=100&fit=cover`;
         const total = (item.quantity * item.price).toFixed(2);
         
@@ -33,16 +32,42 @@ export function generateAdminOrderEmail(order: any, items: OrderItem[], directus
 
     const total = items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2);
 
+    const commentHtml = order.comment 
+        ? `
+            <div style="background-color: #fef9c3; border-left: 4px solid #eab308; padding: 15px; margin: 20px 0;">
+                <h3 style="margin: 0 0 10px 0; color: #854d0e;">📝 Коментар / Реквізити для рахунку:</h3>
+                <p style="margin: 0; white-space: pre-wrap; font-size: 16px;">${order.comment}</p>
+            </div>
+          `
+        : '';
+
     return `
-        <h1>🔔 Нове замовлення №${order.local_order_id}</h1>
-        <p><b>Клієнт:</b> ${order.customer_name}$</p>
-        <p><b>Телефон:</b> ${order.phone}</p>
-        <p><b>Email:</b> ${order.email}</p>
-        <p><b>Доставка:</b> ${order.city}, ${order.warehouse}</p>
-        <hr>
-        <h3>Товари:</h3>
-        ${itemsHtml}
-        <p style="font-size: 18px;"><b>Разом до сплати: ${total} UAH</b></p>
+        <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px;">
+            <h1 style="color: #171717;">🔔 Нове замовлення №${order.local_order_id}</h1>
+            
+            <div style="background: #f4f4f4; padding: 15px; border-radius: 8px;">
+                <p style="margin: 5px 0;"><b>Клієнт:</b> ${order.customer_name}</p>
+                <p style="margin: 5px 0;"><b>Телефон:</b> ${order.phone}</p>
+                <p style="margin: 5px 0;"><b>Email:</b> ${order.email}</p>
+                <p style="margin: 5px 0;"><b>Спосіб оплати:</b> ${order.payment_method_label || 'Не вказано'}</p>
+                <p style="margin: 5px 0;"><b>Доставка:</b> ${order.city}, ${order.warehouse}</p>
+            </div>
+
+            ${commentHtml}
+
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+            
+            <h3>Товари:</h3>
+            ${itemsHtml}
+            
+            <div style="text-align: right; margin-top: 20px;">
+                <p style="font-size: 20px; color: #171717;"><b>Разом до сплати: ${total} UAH</b></p>
+            </div>
+            
+            <p style="font-size: 12px; color: #777; margin-top: 40px;">
+                Замовлення створено в Directus. Ви можете переглянути його в панелі керування.
+            </p>
+        </div>
     `;
 }
 
