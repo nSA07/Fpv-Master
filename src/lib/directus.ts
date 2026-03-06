@@ -1,6 +1,8 @@
 export const API_URL = process.env.NEXT_PUBLIC_DIRECTUS_URL!;
 export const API_TOKEN = process.env.DIRECTUS_TOKEN!;
 import { notFound } from "next/navigation";
+import { fetchHProfitStock } from "./h-profit-stock";
+
 
 interface FetchOptions extends RequestInit {
   method?: "GET" | "POST" | "PATCH" | "DELETE";
@@ -91,7 +93,24 @@ export async function getProducts(onlyDiscounted?: boolean) {
     params.append("filter[price_old][_nnull]", "true");
   }
 
-  return await directusFetch<any[]>(`/items/products?${params.toString()}`);
+  const [directusProducts, hProfitData] = await Promise.all([
+    directusFetch<any[]>(`/items/products?${params.toString()}`),
+    fetchHProfitStock()
+  ]);
+
+  const stockMap = new Map();
+  hProfitData.forEach((item: any) => {
+    stockMap.set(item.sku, item.stock);
+  });
+
+  return directusProducts.map(product => {
+    const externalStock = stockMap.get(product.sku);
+    
+    return {
+      ...product,
+      stock:externalStock[0]?.quantity
+    };
+  });
 }
 
 export async function getOneProduct(slug: string) {
@@ -123,12 +142,21 @@ export async function getOneProduct(slug: string) {
       subcategories.category.active`
   );
 
-  // Directus повертає масив
-  return data[0] ?? null;
+  const product = data[0] ?? null;
+  if (!product) return null;
+
+  const erpProducts = await fetchHProfitStock();
+  const erpData = erpProducts.find((p: any) => String(p.sku) === String(product.sku));
+  
+  return {
+    ...product,
+    stock: erpData?.stock[0].quantity
+  };
 }
 
 export async function getProductsByCategorySlug(slug: string) {
-  return await directusFetch<any[]>(
+  const [directusProducts, erpProducts] = await Promise.all([
+    directusFetch<any[]>(
     `/items/products?filter[subcategories][category][slug][_eq]=${slug}&filter[active][_eq]=true&filter[subcategories][active][_eq]=true&fields=
       id,
       slug,
@@ -154,7 +182,20 @@ export async function getProductsByCategorySlug(slug: string) {
       subcategories.category.id,
       subcategories.category.slug,
       subcategories.category.active`
-  );
+    ),
+    fetchHProfitStock()
+  ]);
+
+  const stockMap = new Map<string, any[]>(erpProducts.map((p: any) => [String(p.sku), p.stock]));
+
+  return directusProducts.map(product => {
+    const erpStockArray = stockMap.get(String(product.sku));
+    
+    return {
+      ...product,
+      stock: erpStockArray?.[0]?.quantity ?? 0
+    };
+  });
 }
 
 // === ЗАМОВЛЕННЯ ===

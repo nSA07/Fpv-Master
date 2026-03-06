@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: Promise<{ categoryS
   const { productSlug } = await params;
   const { categorySlug } = await params;
   const product: Product = await getOneProduct(productSlug);
-
+  
   if (!product) {
     return {
       title: "Товар не знайдено | FPVmaster",
@@ -97,7 +97,7 @@ export default async function Page({ params }: { params: Promise<{ categorySlug:
   const product: Product = await getOneProduct(productSlug);
   const productBySlug = await getProductsByCategorySlug(product.subcategories.category.slug);
   const filteredProduct = productBySlug
-    ? productBySlug.filter((p: { id: string; }) => p.id !== productSlug)
+    ? productBySlug?.filter((p: { id: string; }) => p.id !== productSlug)
     : productBySlug;
   const isInactive =
     !product.active ||
