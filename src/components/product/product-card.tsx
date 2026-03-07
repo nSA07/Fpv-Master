@@ -9,6 +9,8 @@ import { PriceMiniDisplay } from "./price-display";
 
 
 export const ProductCard = ({ product }: { product: Product }) => {
+  const isOutOfStock = product.stock <= 0;
+  
   return (
     <div className="flex h-full flex-col w-full mx-auto bg-white rounded-lg p-4">
       <div className="flex items-center justify-center mb-4 h-76 w-full rounded-lg overflow-hidden">
@@ -35,7 +37,14 @@ export const ProductCard = ({ product }: { product: Product }) => {
             {product.name}
           </TooltipContent>
         </Tooltip>
-        <span className="text-sm text-gray-500 truncate">{product.brand ? product.brand : "Без бренду"}</span>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-500 truncate">{product.brand ? product.brand : "Без бренду"}</span>
+          {isOutOfStock && (
+            <span className="text-[10px] font-bold text-red-500 whitespace-nowrap bg-red-50 px-2 py-0.5 rounded border border-red-100">
+              НЕМАЄ В НАЯВНОСТІ
+            </span>
+          )}
+        </div>
       </div>
       <div className="flex justify-between items-center mt-auto">
         <Button asChild className="cursor-pointer w-fit">
@@ -45,7 +54,6 @@ export const ProductCard = ({ product }: { product: Product }) => {
         </Button>
         <PriceMiniDisplay price={product.price} price_old={product.price_old} />
       </div>
-      {/* <QuantitySelector price={product.price} /> */}
     </div>
   );
 };

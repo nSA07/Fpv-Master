@@ -107,15 +107,15 @@ export const QuantitySelector = ({
             </Button>
 
             {/* ОСЬ ЦЕЙ ІНПУТ */}
-            <Input
-              type="text" 
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={quantity === 0 ? "" : quantity}
-              onChange={handleInputChange}
-              onBlur={handleBlur}
-              className="w-12 h-10 text-center text-lg font-semibold bg-transparent border-b-2 border-gray-200 focus:border-primary focus:outline-none transition-colors"
-            />
+            <div className="max-w-[100px] w-full">
+              <Input
+                type="text" 
+                inputMode="numeric"
+                value={quantity === 0 ? "" : quantity}
+                onChange={handleInputChange}
+                className="w-full h-10 text-center text-lg font-semibold bg-transparent border-b-2 border-gray-200 focus:border-primary focus:outline-none transition-colors"
+              />
+            </div>
 
             <Button
               variant="ghost"

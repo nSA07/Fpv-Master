@@ -19,29 +19,24 @@ export async function generateMetadata({ params }: { params: Promise<{ categoryS
   const baseUrl = process.env.NEXT_PUBLIC_ASSETS_URL;
   const productUrl = `${baseUrl}/${categorySlug}/${product.slug}`;
 
-  // Title
   const hasDiscount = product.price_old && product.price < product.price_old;
   const title = hasDiscount
     ? `${product.name} — зі знижкою, купити за ${product.price} грн | FPVmaster`
     : `${product.name} — купити за ${product.price} грн | FPVmaster`;
 
-  // Description (обрізаємо до 160 символів)
   const description = product.description
     ? product.description.replace(/\s+/g, " ").slice(0, 160) + "..."
     : `Купити ${product.name} у магазині FPVmaster. Доставка по Україні.`;
 
-  // OG / Twitter image
   const image = product.images?.length
     ? `${baseUrl}/api/assets/${product.images[0].directus_files_id.filename_disk}`
     : `${baseUrl}/og-default.jpg`;
 
-  // Availability
   const inStock = product.stock && product.stock > 0;
   const availability = inStock
     ? "https://schema.org/InStock"
     : "https://schema.org/OutOfStock";
 
-  // ✅ Product Schema (JSON-LD)
   const productSchema = {
     "@context": "https://schema.org/",
     "@type": "Product",
