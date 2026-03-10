@@ -108,7 +108,8 @@ export async function getProducts(onlyDiscounted?: boolean) {
     
     return {
       ...product,
-      stock:externalStock[0]?.quantity
+      stock:externalStock[0]?.quantity,
+      huge_profit_id: externalStock[0]?.id || null
     };
   });
 }
@@ -150,7 +151,8 @@ export async function getOneProduct(slug: string) {
   
   return {
     ...product,
-    stock: erpData?.stock[0].quantity
+    stock: erpData?.stock[0].quantity,
+    huge_profit_id: erpData?.id
   };
 }
 
@@ -193,7 +195,8 @@ export async function getProductsByCategorySlug(slug: string) {
     
     return {
       ...product,
-      stock: erpStockArray?.[0]?.quantity ?? 0
+      stock: erpStockArray?.[0]?.quantity ?? 0,
+      huge_profit_id: erpStockArray ? erpStockArray[0].id : null
     };
   });
 }

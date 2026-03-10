@@ -1,5 +1,7 @@
 import { getAdminEmails } from "@/lib/directus";
 import { generateAdminOrderEmail, generateOrderConfirmationEmail } from "@/lib/email-templates";
+import { syncToHugeProfit } from "@/lib/h-profit-stock";
+
 import { verifyMonoBankSignature } from "@/lib/mono";
 import { handleStockUpdate } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
@@ -73,6 +75,8 @@ export async function POST(req: NextRequest) {
         if (newStatus === "paid") {
             
             await handleStockUpdate(products, DIRECTUS_URL, DIRECTUS_TOKEN, directusOrderId);
+
+            await syncToHugeProfit(directusResponse.data, true,);
 
             const totalSumInBaseUnits = (products || []).reduce((total: any, product: { subtotal: any; }) => {
                 if (typeof product.subtotal === 'number') {

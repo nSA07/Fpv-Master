@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 export async function submitCheckout(data: CheckoutFormValues, products: Product[], cartItems: CartItem[]) {
     const cartStore = useCartStore.getState();
-    const orderIdLocal = cartStore.orderId; // Ваш локальний ID
+    const orderIdLocal = cartStore.orderId;
     
     const checkRes = await fetch(`/api/check-order?orderId=${orderIdLocal}`);
     const checkData = await checkRes.json();

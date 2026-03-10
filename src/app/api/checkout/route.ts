@@ -3,6 +3,7 @@ import { createOrder, getAdminEmails, updateOrder } from "@/lib/directus";
 import { generateAdminOrderEmail } from "@/lib/email-templates";
 import { buildMonoPayload } from "@/lib/mono";
 import { createMonoInvoice } from "@/lib/mono";
+import { syncToHugeProfit } from "@/lib/h-profit-stock";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY!;
 
@@ -51,6 +52,7 @@ export async function POST(req: Request) {
                     price: product?.price,
                     subtotal: product ? product.price * i.quantity : 0,
                     image_id: product.images || null,
+                    huge_profit_id: product.huge_profit_id || null,
                 };
             }),
             payment_status: paymentStatus,
@@ -75,7 +77,19 @@ export async function POST(req: Request) {
             return new Response(JSON.stringify({ pageUrl: monoData.pageUrl }));
         }
         if (paymentMethod === "cod" || paymentMethod === "invoice") {
-            try {
+                try {
+                    const hpStatus = paymentMethod === "cod" ? "delivering" : "pending"; 
+                    
+                    await syncToHugeProfit(
+                        { 
+                            ...orderData, 
+                            first_name: customer.firstName, 
+                            last_name: customer.lastName,
+                            payment_method_label: paymentMethod === "invoice" ? "Рахунок" : "Накладений платіж"
+                        }, 
+                        false,
+                        hpStatus
+                    );
                 const adminEmails = await getAdminEmails();
                 
                 if (adminEmails && adminEmails.length > 0) {
