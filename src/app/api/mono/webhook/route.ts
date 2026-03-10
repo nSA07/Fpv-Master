@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
         const directusOrderId = webhookData.reference; 
         const newStatus = webhookData.status === "success" ? "paid" : "failed";
 
-        const updateRes = await fetch(`${DIRECTUS_URL}/items/orders/${directusOrderId}?fields=local_order_id,email,products`, {
+        const updateRes = await fetch(`${DIRECTUS_URL}/items/orders/${directusOrderId}`, {
             method: "PATCH",
             headers: {
                 Authorization: `Bearer ${DIRECTUS_TOKEN}`,
@@ -70,13 +70,12 @@ export async function POST(req: NextRequest) {
         
         const directusResponse = await updateRes.json();
         const { local_order_id: localOrderId, email: customerEmail, products } = directusResponse.data;
-
         
         if (newStatus === "paid") {
             
             await handleStockUpdate(products, DIRECTUS_URL, DIRECTUS_TOKEN, directusOrderId);
 
-            await syncToHugeProfit(directusResponse.data, true,);
+            await syncToHugeProfit(directusResponse.data, true);
 
             const totalSumInBaseUnits = (products || []).reduce((total: any, product: { subtotal: any; }) => {
                 if (typeof product.subtotal === 'number') {
