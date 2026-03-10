@@ -80,7 +80,7 @@ export default function CheckoutPage() {
       lastName: "",
       middleName: "",
       email: "",
-      phone: "",
+      phone: "+380",
       comment: "",
       paymentMethod: "mono",
     },
@@ -104,8 +104,7 @@ export default function CheckoutPage() {
 
   const onSubmit = async (data: CheckoutFormValues) => {
     try {
-      setIsSubmitting(true);
-      
+      setIsSubmitting(true);      
       await submitCheckout(data, products, cartItems);
     } catch (error) {
       console.error("Submission error:", error);

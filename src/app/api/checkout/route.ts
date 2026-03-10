@@ -77,19 +77,17 @@ export async function POST(req: Request) {
             return new Response(JSON.stringify({ pageUrl: monoData.pageUrl }));
         }
         if (paymentMethod === "cod" || paymentMethod === "invoice") {
-                try {
-                    const hpStatus = paymentMethod === "cod" ? "delivering" : "pending"; 
+            try {
                     
-                    await syncToHugeProfit(
-                        { 
-                            ...orderData, 
-                            first_name: customer.firstName, 
-                            last_name: customer.lastName,
-                            payment_method_label: paymentMethod === "invoice" ? "Рахунок" : "Накладений платіж"
-                        }, 
-                        false,
-                        hpStatus
-                    );
+                await syncToHugeProfit(
+                    { 
+                        ...orderData, 
+                        first_name: customer.firstName, 
+                        last_name: customer.lastName,
+                        payment_method_label: paymentMethod === "invoice" ? "Рахунок" : "Накладений платіж"
+                    }, 
+                    false
+                );
                 const adminEmails = await getAdminEmails();
                 
                 if (adminEmails && adminEmails.length > 0) {
