@@ -17,7 +17,7 @@ export const ProductCard = ({ product }: { product: Product }) => {
         {product.images?.length > 0 ? (
           <Link href={`/${product.subcategories.category.slug}/${product.slug}`} className="w-full h-full">
             <img
-              src={`api/assets/${product.images[0].directus_files_id.filename_disk}`}
+              src={`/api/assets/${product.images[0].directus_files_id.filename_disk}`}
               alt={product.name}
               className="w-full h-full object-contain"
             />
