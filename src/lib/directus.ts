@@ -82,7 +82,6 @@ export async function getOneCategory(slug: string) {
   };
 }
 
-// === ПРОДУКТИ ===
 export async function getProducts(onlyDiscounted?: boolean) {
   const params = new URLSearchParams({
     "filter[active][_eq]": "true",
@@ -98,18 +97,19 @@ export async function getProducts(onlyDiscounted?: boolean) {
     fetchHProfitStock()
   ]);
 
-  const stockMap = new Map();
+  const hpMap = new Map();
   hProfitData.forEach((item: any) => {
-    stockMap.set(item.sku, item.stock);
+    hpMap.set(String(item.sku), item);
   });
 
   return directusProducts.map(product => {
-    const externalStock = stockMap.get(product.sku);
-    
+    const hpItem = hpMap.get(String(product.sku));
+    const hpQuantity = hpItem?.stock?.[0]?.quantity;
+
     return {
       ...product,
-      stock:externalStock[0]?.quantity,
-      huge_profit_id: externalStock[0]?.id || null
+      stock: (hpQuantity !== undefined && hpQuantity !== null) ? hpQuantity : product.stock,
+      huge_profit_id: hpItem?.id || null
     };
   });
 }
@@ -146,14 +146,20 @@ export async function getOneProduct(slug: string) {
   const product = data[0] ?? null;
   if (!product) return null;
 
-  const erpProducts = await fetchHProfitStock();
-  const erpData = erpProducts.find((p: any) => String(p.sku) === String(product.sku));
-  
-  return {
-    ...product,
-    stock: erpData?.stock[0].quantity,
-    huge_profit_id: erpData?.id
-  };
+  try {
+    const erpProducts = await fetchHProfitStock();
+    const erpData = erpProducts.find((p: any) => String(p.sku) === String(product.sku));
+    const hpQuantity = erpData?.stock?.[0]?.quantity;
+    
+    return {
+      ...product,
+      stock: (hpQuantity !== undefined && hpQuantity !== null) ? hpQuantity : product.stock,
+      huge_profit_id: erpData?.id || null
+    };
+  } catch (e) {
+    console.error("Помилка синхронізації з HP:", e);
+    return product;
+  }
 }
 
 export async function getProductsByCategorySlug(slug: string) {
@@ -188,15 +194,16 @@ export async function getProductsByCategorySlug(slug: string) {
     fetchHProfitStock()
   ]);
 
-  const stockMap = new Map<string, any[]>(erpProducts.map((p: any) => [String(p.sku), p.stock]));
+const hpMap = new Map<string, any>(erpProducts.map((p: any) => [String(p.sku), p]));
 
   return directusProducts.map(product => {
-    const erpStockArray = stockMap.get(String(product.sku));
-    
+    const hpItem = hpMap.get(String(product.sku));
+    const hpQuantity = hpItem?.stock?.[0]?.quantity;
+
     return {
       ...product,
-      stock: erpStockArray?.[0]?.quantity ?? 0,
-      huge_profit_id: erpStockArray ? erpStockArray[0].id : null
+      stock: (hpQuantity !== undefined && hpQuantity !== null) ? hpQuantity : product.stock,
+      huge_profit_id: hpItem?.id || null
     };
   });
 }
@@ -210,32 +217,32 @@ export async function getOrderByLocalId(orderId: string) {
 }
 
 export async function createOrder(data: OrderPayload) {
-    try {
-        const res = await fetch(`${API_URL}/items/orders`, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${API_TOKEN}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-            cache: "no-store",
-        });
+  try {
+    const res = await fetch(`${API_URL}/items/orders`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${API_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+      cache: "no-store",
+    });
 
-        if (!res.ok) {
-            const error = await res.json();
-            console.error("Directus CREATE error:", error);
-            // Повертаємо об'єкт помилки, щоб обробити його у route.ts
-            return { errors: error.errors || [{ message: "Failed to create order" }] };
-        }
-
-        const result = await res.json();
-        // Повертаємо дані з Directus, включаючи згенерований ID
-        return { data: result.data }; 
-
-    } catch (error) {
-        console.error("Directus CREATE fetch error:", error);
-        return { errors: [{ message: "Network error during order creation" }] };
+    if (!res.ok) {
+      const error = await res.json();
+      console.error("Directus CREATE error:", error);
+      // Повертаємо об'єкт помилки, щоб обробити його у route.ts
+      return { errors: error.errors || [{ message: "Failed to create order" }] };
     }
+
+    const result = await res.json();
+    // Повертаємо дані з Directus, включаючи згенерований ID
+    return { data: result.data }; 
+
+  } catch (error) {
+      console.error("Directus CREATE fetch error:", error);
+      return { errors: [{ message: "Network error during order creation" }] };
+  }
 }
 
 // --- 2. Оновлення існуючого замовлення (PATCH) ---
