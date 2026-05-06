@@ -104,7 +104,7 @@ export async function getProducts(onlyDiscounted?: boolean) {
 
   return directusProducts.map(product => {
     const hpItem = hpMap.get(String(product.sku));
-    const hpQuantity = hpItem?.stock?.[0]?.quantity;
+    const hpQuantity = hpItem?.stock?.[0]?.instock;
 
     return {
       ...product,
@@ -149,7 +149,7 @@ export async function getOneProduct(slug: string) {
   try {
     const erpProducts = await fetchHProfitStock();
     const erpData = erpProducts.find((p: any) => String(p.sku) === String(product.sku));
-    const hpQuantity = erpData?.stock?.[0]?.quantity;
+    const hpQuantity = erpData?.stock?.[0]?.instock;
     
     return {
       ...product,
@@ -198,7 +198,7 @@ const hpMap = new Map<string, any>(erpProducts.map((p: any) => [String(p.sku), p
 
   return directusProducts.map(product => {
     const hpItem = hpMap.get(String(product.sku));
-    const hpQuantity = hpItem?.stock?.[0]?.quantity;
+    const hpQuantity = hpItem?.stock?.[0]?.instock;
 
     return {
       ...product,

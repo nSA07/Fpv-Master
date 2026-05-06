@@ -2,6 +2,7 @@ interface Product {
   id: string;
   slug: string;
   active: boolean;
+  allow_online_payment: boolean;
   name: string;
   images: ProductImage[];
   price: number;

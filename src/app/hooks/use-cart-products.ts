@@ -25,6 +25,6 @@ export function useCartProducts() {
 
         fetchProducts();
     }, [cartItems]);
-
+    
     return { products };
 }

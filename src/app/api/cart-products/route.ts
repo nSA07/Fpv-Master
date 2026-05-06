@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
     const [res, hProfitData] = await Promise.all([
       fetch(
-        `${API_URL}/items/products?filter[id][_in]=${query}&fields=id,name,description,price,sku,brand,stock,images.directus_files_id`,
+        `${API_URL}/items/products?filter[id][_in]=${query}&fields=id,active,allow_online_payment,name,description,price,sku,brand,stock,images.directus_files_id`,
         {
           headers: {
             Authorization: `Bearer ${API_TOKEN}`,
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       const hpItem = hpMap.get(product.sku);      
       return {
         ...product,
-        stock: hpItem?.stock?.[0]?.quantity ?? product.stock,
+        stock: hpItem?.stock?.[0]?.instock ?? product.stock,
         huge_profit_id: hpItem?.id || null
       };
     });

@@ -27,7 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { NovaPoshtaSelect } from "./components/nova-poshta-select";
 import { submitCheckout } from "@/lib/checkout";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, AlertCircle } from "lucide-react";
 
 const checkoutSchema = z.object({
   firstName: z.string().min(2, "Введіть ім'я"),
@@ -41,24 +41,24 @@ const checkoutSchema = z.object({
   city: z.object({
     label: z.string(),
     ref: z.string()
-  }, "Оберіть місто"),
+  }, "Оберіть місто" ),
   warehouse: z.object({
     label: z.string(),
     ref: z.string()
-  }, "Оберіть відділення"),
+  }, "Оберіть відділення" ),
   paymentMethod: z.enum(["mono", "cod", "invoice"]),
 }).refine(
-    (data) => {
-      if (data.paymentMethod === "invoice") {
-        return data.comment && data.comment.trim().length >= 5;
-      }
-      return true;
-    },
-    {
-      message: "Будь ласка, вкажіть реквізити (Назва компанії, ЄДРПОУ) для виставлення рахунку",
-      path: ["comment"],
+  (data) => {
+    if (data.paymentMethod === "invoice") {
+      return data.comment && data.comment.trim().length >= 5;
     }
-  );
+    return true;
+  },
+  {
+    message: "Будь ласка, вкажіть реквізити (Назва компанії, ЄДРПОУ) для виставлення рахунку",
+    path: ["comment"],
+  }
+);
 
 export type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 
@@ -73,6 +73,17 @@ export default function CheckoutPage() {
     setHydrated(true);
   }, []);
 
+  // --- ЛОГІКА ПЕРЕВІРКИ СТОКУ ТА ОПЛАТИ ---
+  
+  // Знаходимо тільки ті дані про продукти, які зараз є в кошику
+  const productsInCart = products.filter(p => cartItems.some(item => item.id === p.id));
+  
+  // Перевірка: чи є хоча б один товар, якого немає в наявності
+  const hasOutOfStockItems = productsInCart.some(p => (p.stock ?? 0) <= 0);
+  
+  // Перевірка: чи дозволена онлайн-оплата для ВСІХ товарів у кошику
+  const isOnlinePaymentAllowed = productsInCart.every(p => p.allow_online_payment === true);
+
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
@@ -82,11 +93,18 @@ export default function CheckoutPage() {
       email: "",
       phone: "+380",
       comment: "",
-      paymentMethod: "mono",
+      paymentMethod: isOnlinePaymentAllowed ? "mono" : "cod",
     },
   });
 
   const paymentMethod = form.watch("paymentMethod");
+
+  // Автоматично скидаємо метод оплати, якщо "mono" заборонено
+  useEffect(() => {
+    if (!isOnlinePaymentAllowed && paymentMethod === "mono") {
+      form.setValue("paymentMethod", "cod");
+    }
+  }, [isOnlinePaymentAllowed, paymentMethod, form]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -103,6 +121,7 @@ export default function CheckoutPage() {
   }, 0);
 
   const onSubmit = async (data: CheckoutFormValues) => {
+    if (hasOutOfStockItems) return; 
     try {
       setIsSubmitting(true);      
       await submitCheckout(data, products, cartItems);
@@ -112,17 +131,27 @@ export default function CheckoutPage() {
       setIsSubmitting(false);
     }
   };
-
+  
   return (
     <section className="max-w-6xl mx-auto w-full lg:p-4">
       <h2 className="text-2xl font-bold mb-6">Оформлення замовлення</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          
+          {/* Повідомлення про відсутність товару */}
+          {hasOutOfStockItems && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex gap-3 items-center">
+              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+              <p className="text-sm font-medium">
+                На жаль, один або кілька товарів у вашому кошику закінчилися. Видаліть їх, щоб продовжити.
+              </p>
+            </div>
+          )}
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               
-              {/* Контактні дані */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <FormField control={form.control} name="lastName" render={({ field }) => (
                   <FormItem><FormLabel>Прізвище*</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
@@ -148,31 +177,40 @@ export default function CheckoutPage() {
 
               <hr className="my-6" />
 
-              {/* Вибір методу оплати */}
               <FormField
                 control={form.control}
                 name="paymentMethod"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Спосіб оплати*</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      value={field.value}
+                      disabled={hasOutOfStockItems}
+                    >
                       <FormControl>
                         <SelectTrigger className="h-12">
                           <SelectValue placeholder="Оберіть спосіб оплати" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="mono">Оплата карткою (MonoPay)</SelectItem>
+                        {isOnlinePaymentAllowed && (
+                          <SelectItem value="mono">Оплата карткою (MonoPay)</SelectItem>
+                        )}
                         <SelectItem value="cod">Післяплата (накладений платіж)</SelectItem>
                         <SelectItem value="invoice">Оплата на розрахунковий рахунок</SelectItem>
                       </SelectContent>
                     </Select>
+                    {!isOnlinePaymentAllowed && (
+                      <p className="text-[12px] text-amber-600 font-medium mt-1">
+                        ⚠️ Онлайн-оплата недоступна через обмеження для деяких товарів у кошику.
+                      </p>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              {/* Коментар або Реквізити */}
               <FormField
                 control={form.control}
                 name="comment"
@@ -204,12 +242,13 @@ export default function CheckoutPage() {
 
               <Button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full md:w-auto min-w-[200px] px-8 py-5 text-base font-semibold bg-[#171717] hover:bg-[#262626] text-white rounded-lg cursor-pointer transition-all shadow-sm active:scale-[0.98]"
+                disabled={isSubmitting || hasOutOfStockItems}
+                className="w-full md:w-auto min-w-[200px] px-8 py-5 text-base font-semibold bg-[#171717] hover:bg-[#262626] text-white rounded-lg cursor-pointer transition-all shadow-sm active:scale-[0.98] disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? "..." : (
+                {isSubmitting ? "Обробка..." : (
                   <span className="flex items-center gap-2">
-                    Оформити замовлення <ArrowRight className="w-4 h-4" />
+                    {hasOutOfStockItems ? "Оформлення недоступне" : "Оформити замовлення"} 
+                    {!hasOutOfStockItems && <ArrowRight className="w-4 h-4" />}
                   </span>
                 )}
               </Button>
@@ -217,24 +256,34 @@ export default function CheckoutPage() {
           </Form>
         </div>
 
-        {/* Підсумок замовлення */}
         <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 h-fit shadow-sm">
           <h3 className="text-lg font-semibold mb-4">Ваше замовлення</h3>
-          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
             {products.map((product) => {
               const cartItem = cartItems.find((i) => i.id === product.id);
               if (!cartItem) return null;
+              const isOutOfStock = (product.stock ?? 0) <= 0;
+
               return (
-                <div key={product.id} className="flex justify-between text-sm gap-3">
-                  <span className="text-gray-700 flex-1">{product.name} × {cartItem.quantity}</span>
-                  <span className="font-medium whitespace-nowrap">
-                    {(product.price * cartItem.quantity).toLocaleString("uk-UA")} ₴
-                  </span>
+                <div key={product.id} className="flex flex-col border-b border-gray-200 pb-2 last:border-0">
+                  <div className="flex justify-between text-sm gap-3">
+                    <span className={`flex-1 ${isOutOfStock ? "text-red-500 line-through decoration-2" : "text-gray-700"}`}>
+                      {product.name} × {cartItem.quantity}
+                    </span>
+                    <span className={`font-medium whitespace-nowrap ${isOutOfStock ? "text-red-500" : ""}`}>
+                      {(product.price * cartItem.quantity).toLocaleString("uk-UA")} ₴
+                    </span>
+                  </div>
+                  {isOutOfStock && (
+                    <span className="text-[10px] text-red-600 font-bold uppercase mt-1">
+                      Немає в наявності
+                    </span>
+                  )}
                 </div>
               );
             })}
           </div>
-          <div className="border-t border-gray-300 mt-4 pt-4 flex justify-between font-bold text-xl">
+          <div className="border-t border-gray-300 mt-4 pt-4 flex justify-between font-bold text-xl text-[#171717]">
             <span>Разом:</span>
             <span>{totalPrice.toLocaleString("uk-UA")} ₴</span>
           </div>
