@@ -104,9 +104,9 @@ export async function POST(req: NextRequest) {
                     await resend.emails.send({
                         from: 'FpvMaster <support@info.fpvmaster.com.ua>',
                         to: adminEmails,
-                        subject: `📦 НОВЕ ЗАМОВЛЕННЯ (Накладений платіж) №${localOrderId}`,
+                        subject: `💳 ОПЛАЧЕНО ОНЛАЙН: Замовлення №${localOrderId}`, 
                         html: generateAdminOrderEmail(
-                            directusResponse.data, 
+                            { ...directusResponse.data, payment_method_label: 'Онлайн-оплата (MonoPay/LiqPay)' },
                             products, 
                             process.env.DIRECTUS_URL!
                         ),
