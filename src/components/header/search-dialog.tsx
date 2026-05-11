@@ -74,7 +74,7 @@ export const SearchDialog = () => {
             />
             <Input
               className="pl-10 border-none focus-visible:ring-0 text-base py-6"
-              placeholder="Шукати за назвою або SKU..."
+              placeholder="Шукати за назвою або артикулом..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               autoFocus
