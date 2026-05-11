@@ -100,7 +100,7 @@ export async function searchProducts(query: string) {
 
   const params = new URLSearchParams({
     "fields": "id,slug,name,price,sku,images.directus_files_id.filename_disk",
-    "limit": "8",
+    "limit": "50",
   });
 
   if (isNumber) {
