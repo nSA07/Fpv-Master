@@ -61,7 +61,7 @@ export const MobileMenu: React.FC<{ categories: Category[] }> = ({ categories })
                   {categories.map((cat) => (
                     <li key={cat.id}>
                       <Link
-                        href={`/${cat.id}`}
+                        href={`/${cat.slug}`}
                         onClick={handleClose}
                         className="block py-1 px-2 rounded hover:bg-gray-100 text-sm font-regular text-gray-700 transition-colors"
                       >

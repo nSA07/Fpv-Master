@@ -85,13 +85,6 @@ export default async function Page() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         
-                        {/* Безкоштовна доставка: світло-сірий акцент */}
-                        <div className="p-3 bg-gray-50 border-l-4 border-gray-300 rounded-md">
-                            <p className="font-bold text-gray-800">
-                                Безкоштовна доставка при замовленні від {data.delivery_free_threshold}
-                            </p>
-                        </div>
-                        
                         {/* Перевізник */}
                         <div className="flex items-start">
                             <p className="font-semibold w-24 min-w-[96px] text-gray-500">Перевізник:</p>
