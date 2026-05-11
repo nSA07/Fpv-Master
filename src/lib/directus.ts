@@ -82,6 +82,39 @@ export async function getOneCategory(slug: string) {
   };
 }
 
+export async function searchProducts(query: string) {
+  const isNumber = /^\d+$/.test(query);
+
+  const filters: any = {
+    active: { _eq: "true" },
+  };
+
+  if (isNumber) {
+    filters._or = [
+      { name: { _icontains: query } },
+      { sku: { _eq: query } }
+    ];
+  } else {
+    filters.name = { _icontains: query };
+  }
+
+  const params = new URLSearchParams({
+    "fields": "id,slug,name,price,sku,images.directus_files_id.filename_disk",
+    "limit": "8",
+  });
+
+  if (isNumber) {
+    params.append("filter[_and][0][active][_eq]", "true");
+    params.append("filter[_and][1][_or][0][name][_icontains]", query);
+    params.append("filter[_and][1][_or][1][sku][_eq]", query);
+  } else {
+    params.append("filter[active][_eq]", "true");
+    params.append("filter[name][_icontains]", query);
+  }
+
+  return await directusFetch<any[]>(`/items/products?${params.toString()}`);
+}
+
 export async function getProducts(onlyDiscounted?: boolean) {
   const params = new URLSearchParams({
     "filter[active][_eq]": "true",

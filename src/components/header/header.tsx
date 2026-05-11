@@ -42,7 +42,7 @@ export const Header: React.FC = async () => {
         </div>
 
         <div className="items-center hidden lg:flex">
-          {/* <SearchDialog /> */}
+          <SearchDialog />
         </div>
 
         <div className="flex items-center gap-4">

@@ -139,6 +139,7 @@ export default async function Page({ params }: { params: Promise<{ categorySlug:
           p-4 
           rounded-xl"
         >
+          <span className="text-end text-xs">Артикул: {product.sku}</span>
           <h1 className="text-xl sm:text-2xl font-bold leading-tight">{product.name}</h1>
 
           <p className="text-gray-500 text-sm sm:text-base">
