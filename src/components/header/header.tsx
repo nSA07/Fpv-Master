@@ -16,12 +16,15 @@ export const Header: React.FC = async () => {
       
       <nav className="relative flex justify-between items-center text-base w-full container px-4 sm:px-8 py-3">
         
-        <div className="flex">
-          <Link href="/" className="flex gap-1 items-center text-2xl font-extrabold text-gray-900">
+        <div className="flex items-center">
+          <Link href="/" className="gap-1 items-center hidden lg:flex text-2xl font-extrabold text-gray-900">
             <Logo
               className="text-2xl"
+              width={35}
+              height={35}
             />
           </Link>
+          <MobileMenu categories={categories} />
         </div>
 
         <div className="items-center gap-6 hidden lg:flex text-sm">
@@ -41,14 +44,12 @@ export const Header: React.FC = async () => {
           </Link>
         </div>
 
-        <div className="items-center hidden lg:flex">
+        <div className="items-center flex">
           <SearchDialog />
         </div>
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
-            <MobileMenu categories={categories} />
-            
             <CartIcon />
           </div>
         </div>

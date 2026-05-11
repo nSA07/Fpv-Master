@@ -3,6 +3,7 @@ import { ProductGallery } from "@/components/product/product-gallery";
 import { QuantitySelector } from "@/components/product/quantity-selector";
 import { RelatedProductsCarousel } from "@/components/product/related-products-carousel";
 import { getOneProduct, getProductsByCategorySlug } from "@/lib/directus";
+import { CopyButton } from "@/components/shared/copy-button";
 
 export async function generateMetadata({ params }: { params: Promise<{ categorySlug: string, productSlug: string }> }): Promise<Metadata> {
   const { productSlug } = await params;
@@ -139,7 +140,10 @@ export default async function Page({ params }: { params: Promise<{ categorySlug:
           p-4 
           rounded-xl"
         >
-          <span className="text-end text-xs">Артикул: {product.sku}</span>
+          <div className="flex items-center justify-end gap-1 text-xs text-muted-foreground">
+            <span>Артикул: {product.sku}</span>
+            <CopyButton value={product.sku} />
+          </div>
           <h1 className="text-xl sm:text-2xl font-bold leading-tight">{product.name}</h1>
 
           <p className="text-gray-500 text-sm sm:text-base">
