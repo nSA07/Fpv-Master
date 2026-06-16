@@ -1,10 +1,11 @@
+import { CopyButton } from '@/components/shared/copy-button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, Truck, RefreshCw, CheckCircle, Banknote, CreditCard, ClipboardList } from 'lucide-react';
 
 const placeholderData = {
   payment_cod_text: "Оплата при отриманні товару (накладений платіж)",
   payment_card_text: "Оплата карткою Visa/MasterCard (RozetkaPay)",
-  payment_iban_number: "UA043220010000026001350095781",
+  payment_iban_number: "UA313220010000026004380000196",
   
   delivery_free_threshold: "1999 грн",
   delivery_methods_text: "Новою Поштою або іншим зручним перевізником",
@@ -65,10 +66,12 @@ export default async function Page() {
                         {/* Оплата 3: IBAN */}
                         <div className="flex items-start">
                             <ClipboardList className="w-6 h-6 mr-3 text-gray-600 mt-0.5 min-w-[24px]" />
-                            <div>
+                            <div className="flex flex-col gap-1">
                                 <p className="font-semibold text-gray-800">Оплата на рахунок IBAN:</p>
-                                {/* Код IBAN - сірий фон для виділення */}
-                                <code className="bg-gray-100 p-1 text-sm rounded text-gray-800">{data.payment_iban_number}</code>
+                                <div className="flex gap-1 items-center">
+                                    <code className="bg-gray-100 p-2 text-sm rounded text-gray-800">{data.payment_iban_number}</code>
+                                    <CopyButton value={data.payment_iban_number} />
+                                </div>
                             </div>
                         </div>
 

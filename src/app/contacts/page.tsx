@@ -2,9 +2,8 @@ import { Phone, Mail, MapPin, Clock, Building } from 'lucide-react';
 
 const contactData = {
   company_name: "FPV Master",
-  owner_info: "ФОП Хоменко Альона Василівна",
+  owner_info: "ФОП Хоменко Людмила Петрівна",
   phone_1: "+380 (93) 440-92-44",
-  phone_2: "+380 (66) 308-52-82",
   email: "fpvmaster8@gmail.com",
   address: "Софіївська Борщагівка, Київська область, Україна",
   schedule_text: "Пн–Нд: 08:00 – 20:00"
@@ -45,12 +44,6 @@ export default function Page() {
                     <a href={`tel:${data.phone_1.replace(/\s/g, '')}`} className="flex items-center text-gray-700 hover:text-gray-900 transition-colors">
                         <span className="font-mono text-base">{data.phone_1}</span>
                     </a>
-                    {/* Телефон 2 (якщо є) */}
-                    {data.phone_2 && (
-                        <a href={`tel:${data.phone_2.replace(/\s/g, '')}`} className="flex items-center text-gray-700 hover:text-gray-900 transition-colors">
-                            <span className="font-mono text-base">{data.phone_2}</span>
-                        </a>
-                    )}
                 </div>
 
                 {/* --- E-mail --- */}
